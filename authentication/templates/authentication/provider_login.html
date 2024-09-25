@@ -1,0 +1,57 @@
+{% extends 'authentication/base.html' %}
+
+{% block title %} Service Centre {% endblock %}
+
+{% block stylesheet %}
+
+<style>
+
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="row mt-lg-n10 mt-md-n11 mt-n10">
+    <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
+      <div class="card z-index-0">
+        <div class="card-header text-center pt-4">
+          <h5>Login Account</h5>
+          {% if messages %}
+          {% for message in messages %}
+            <p>{{message}}</p>
+          {% endfor %}
+          {% endif %}
+
+        </div>
+
+        <div class="card-body">
+          <form role="form text-left" method="POST" action="{% url 'login-provider' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <input type="email" name="email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-addon">
+            </div>
+            <div class="mb-3">
+              <input type="password" name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon">
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Login Account</button>
+            </div>
+            <p class="text-sm mt-3 mb-0">Don't have an account? <a href="{% url 'provider-register' %}" class="text-dark font-weight-bolder">Sign up</a></p>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

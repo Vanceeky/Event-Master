@@ -1,0 +1,412 @@
+{% extends 'base/layout.html' %}
+
+{% block title %} Customer Account {% endblock %}
+
+{% block stylesheet %}
+
+{% endblock %}
+
+{% block content %}
+
+
+<section class="pt-3 pb-4" id="count-stats">
+    
+    <div class="p-3 shadow-blur">
+      <div class="container">
+        <div class="page-header min-height-300 border-radius-xl mt-4" style="
+              background-image: url('/static/assets/img/curved-images/curved.jpg');
+              background-position-y: 50%;
+            "></div>
+        <div class="card card-body blur mx-4 mt-n6 overflow-hidden">
+          <div class="row gx-4">
+
+            <div class="col-auto">
+              <div class="avatar avatar-xl position-relative">
+                <img src="/static/assets/img/bruce-mars.jpg" alt="profile_image"
+                  class="w-100 border-radius-lg shadow-sm" />
+              </div>
+            </div>
+            <div class="col-auto my-auto">
+
+              <div class="h-100">
+                <h5 class="mb-1">{{ customer }}</h5>
+                <p class="mb-0 font-weight-bold text-sm text-capitalize">
+                  {{ customer.user.first_name }} {{ customer.user.last_name}}
+                </p>
+              </div>
+
+            </div>
+            <div class="col-lg-4 text-end col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
+
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#create-event" class="btn btn-secondary btn-icon mb-3 mb-sm-0">
+              <span class="btn-inner--icon"><i class="fa-solid fa-notes-medical"></i></span>
+              <span class="btn-inner--text">Create New Event</span>
+                      </a>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row mt-3">
+        <!--
+        <div class="col-xl-3 mt-md-0 mt-4">
+          <div class="card h-auto">
+            <div class="card-header pb-0 p-3">
+              <div class="row">
+                <div class="col-md-8 d-flex align-items-center">
+                  <h6 class="mb-0">Profile Information</h6>
+                </div>
+                <div class="col-md-4 text-end">
+                  <a href="javascript:;">
+                    <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                      aria-hidden="true" aria-label="Edit Profile" data-bs-original-title="Edit Profile"></i><span
+                      class="sr-only">Edit Profile</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-3">
+              <ul class="list-group">
+                <li class="list-group-item border-0 ps-0 text-sm">
+                  <strong class="text-dark"><i class="fa fa-phone"></i></strong> &nbsp; {{ customer.phone_number }}
+                </li>
+                <li class="list-group-item border-0 ps-0 text-sm">
+                  <strong class="text-dark"><i class="fa fa-envelope"></i></strong> &nbsp; {{ customer.user.email }}
+                </li>
+                <li class="list-group-item border-0 ps-0 text-sm">
+                  <strong class="text-dark"><i class="fa fa-map-marker"></i></strong> &nbsp; {{ customer.address }}
+                </li>
+                <li class="list-group-item border-0 ps-0 pb-0">
+                  <strong class="text-dark text-sm">Social:</strong> &nbsp;
+                  <a class="btn btn-facebook btn-simple mb-0 ps-1 pe-2 py-0" href="javascript:;">
+                    <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+                  </a>
+                  <a class="btn btn-twitter btn-simple mb-0 ps-1 pe-2 py-0" href="javascript:;">
+                    <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
+                  </a>
+                  <a class="btn btn-instagram btn-simple mb-0 ps-1 pe-2 py-0" href="javascript:;">
+                    <i class="fab fa-instagram fa-lg" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        -->
+
+        <div class="col mt-xl-0 mt-4">
+
+          {% for event in events %}
+              <div class="card mb-3 mt-lg-0 mt-4" id="event_{{ event.id }}">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="card-body h-auto pb-0">
+                      <!-- Event details -->
+                      <div class="row align-items-center mb-3">
+                        <div class="col-9">
+                          <h5 class="mb-0">
+                            <a href="javascript:;">{{ event.title }}</a>
+                          </h5>
+                          <span class="text-sm ms-auto mt-0">{{ event.event_date }}</span>
+                        </div>
+                        <div class="col-3 text-end">
+                          <div class="dropstart">
+                            <a href="javascript:;" class="text-secondary" id="dropdownMarketingCard" data-bs-toggle="dropdown" aria-expanded="false">
+                              <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-lg-start px-2 py-3" aria-labelledby="dropdownMarketingCard">
+                              <li><a class="dropdown-item border-radius-md" href="javascript:;">Edit Team</a></li>
+                              <li><a class="dropdown-item border-radius-md" href="javascript:;">Add Member</a></li>
+                              <li><a class="dropdown-item border-radius-md" href="javascript:;">See Details</a></li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item border-radius-md text-danger" href="javascript:;">Remove Team</a></li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      
+                      <ul class="list-unstyled mx-auto">
+                        <li class="d-flex">
+                          <p class="mb-0">Venue:</p>
+                          <span class="ms-auto">{{ event.location }}</span>
+                        </li>
+            
+                        <li>
+                          <hr class="horizontal dark">
+                        </li>
+            
+                        <li class="d-flex">
+                          <p class="mb-0">Budget:</p>
+                          <span class="ms-auto" id="budget_{{ event.id }}">₱ {{ event.budget }}</span>
+                        </li>
+            
+                        <li>
+                          <hr class="horizontal dark">
+                        </li>
+            
+                        <li class="d-flex">
+                          <p class="mb-0">Estimated Bill:</p>
+                          <span class="ms-auto" id="estimated_bill_{{ event.id }}">₱ 0.00</span>
+                        </li>
+            
+                        <li id="budget_note_{{ event.id }}" class="mt-4 d-none">
+                          <p class="text-danger">Note: The estimated bill exceeds the budget.</p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+            
+                  <div class="col-md-8">
+                    <div class="card-body pb-0">
+                      <div class="card mb-2">
+                        {% for selected_service in event.selected_services.all %}
+                          <div class="mb-2 text-white bg-gradient-secondary pt-2 p-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                              <div class="d-flex">
+                                <div class="avatar avatar-lg">
+                                  <img alt="Image placeholder" src="{{ selected_service.service.provider.logo.url }}">
+                                </div>
+                                <div class="ms-2 my-auto">
+                                  <h6 class="mb-0"><a href="{% url 'service-details' selected_service.service.id %}" type="button" class="text-white card-title h5 mb-0 d-block" data-bs-toggle="tooltip" data-bs-placement="left" title="View Service">
+                                    {{ selected_service.service.name }}
+                                  </a></h6>
+                                  <p class="text-xs text-white mb-0"><a class="text-white" href="{% url 'service-provider' selected_service.service.provider.id %}">{{ selected_service.service.provider }}</a></p>
+                                </div>
+                              </div>
+                              <a href="" type="button" class="service-price text-white card-title h5 mb-0 d-block">
+                                ₱ {{ selected_service.service.price }}
+                              </a>
+                            </div>
+            
+                            <p class="card-description">
+                              <ul>
+                                <strong class="mb-0">Inclusions</strong>
+                                {% if selected_service.service.inclusions_list %}
+                                  {% for inclusion in selected_service.service.inclusions_list %}
+                                    <li class="text-sm">{{ inclusion }}</li>
+                                  {% endfor %}
+                                {% else %}
+                                  <strong>No inclusions listed.</strong>
+                                {% endif %}
+                              </ul>
+                            </p>
+            
+                            <div class="d-flex justify-content-between align-items-center">
+                              <span class="badge bg-gradient-warning">{{ selected_service.status }}</span>
+                              <div class="dropstart">
+                                <a href="{% url 'remove_service_from_event' selected_service.id %}" class="text-white" aria-expanded="false" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Service">
+                                  <i class="fas fa-trash" aria-hidden="true"></i>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        {% empty %}
+                          <li>No services associated with this event.</li>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          {% empty %}
+            <li>No events found.</li>
+          {% endfor %}
+        
+        
+        
+          
+
+
+        </div>
+      </div>
+    </div>
+
+   
+  </section>
+
+
+
+  <!--- MODALS -->
+
+<div class="col-md-4">
+  <div class="modal fade" id="create-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+    <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modal-title-notification">Create new event:</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form method="POST" id="create-event-form" action="{% url 'create-new-event' %}">
+          {% csrf_token %}
+
+
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Event Name:</label>
+              <input type="text"  name="event_name" required class="form-control" id="exampleFormControlInput1" placeholder="">
+            </div>
+
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Date:</label>
+              <input type="date"  name="date" required class="form-control" id="exampleFormControlInput1" placeholder="">
+            </div>
+
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Event Location:</label>
+              <input type="text"  name="location" required class="form-control" id="exampleFormControlInput1" placeholder="">
+            </div>
+
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Budget:</label>
+              <input type="number"  name="budget" required class="form-control" id="exampleFormControlInput1" placeholder="">
+            </div>
+
+
+            <div class="form-group">
+              <label for="exampleFormControlTextarea1">Event Description:</label>
+              <textarea class="form-control" name="description" id="exampleFormControlTextarea1" rows="3"></textarea>
+            </div>
+
+
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-white">Ok, Got it</button>
+            <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    function calculateEstimatedBill() {
+      // Select all event cards
+      const eventCards = document.querySelectorAll('.card');
+      console.log('Event Cards:', eventCards); // Debug: Check selected event cards
+      
+      // Loop through each event card to calculate estimated bills
+      eventCards.forEach(card => {
+        const eventId = card.id.split('_')[1]; // Extract event ID from card ID
+        console.log('Processing Event ID:', eventId); // Debug: Check the extracted event ID
+        
+        // Select all price elements for this event
+        const prices = card.querySelectorAll('.service-price');
+        console.log('Prices for Event:', prices); // Debug: Check selected prices
+        
+        let total = 0;
+
+        // Calculate the total estimated bill for this event
+        prices.forEach(priceElement => {
+          const priceText = priceElement.textContent.trim().replace('₱', '').replace(',', '');
+          const price = parseFloat(priceText);
+          if (!isNaN(price)) {
+            total += price;
+          }
+        });
+
+        console.log('Total Estimated Bill for Event:', total); // Debug: Check the calculated total
+        
+        // Update the estimated bill element for this event
+        const estimatedBillElement = card.querySelector(`#estimated_bill_${eventId}`);
+        if (estimatedBillElement) {
+          estimatedBillElement.textContent = '₱ ' + total.toFixed(2);
+          console.log('Updated Estimated Bill Element:', estimatedBillElement); // Debug: Check the updated element
+        }
+
+        // Extract and compare the budget
+        const budgetElement = card.querySelector(`#budget_${eventId}`);
+        const budgetNoteElement = card.querySelector(`#budget_note_${eventId}`);
+
+        if (budgetElement && estimatedBillElement && budgetNoteElement) {
+          const budgetText = budgetElement.textContent.trim().replace('₱', '').replace(',', '');
+          const budget = parseFloat(budgetText);
+          
+          console.log('Budget for Event:', budget); // Debug: Check the extracted budget
+
+          if (budget && total > budget) {
+            budgetNoteElement.classList.remove('d-none');
+            console.log('Budget Note: The estimated bill exceeds the budget.'); // Debug: Check if the note is shown
+          } else {
+            budgetNoteElement.classList.add('d-none');
+            console.log('Budget Note: The estimated bill is within the budget.'); // Debug: Check if the note is hidden
+          }
+        }
+      });
+    }
+    
+    calculateEstimatedBill();
+  });
+</script>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('create-event-form'); // Replace with your form's ID
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+
+      fetch('/create-new-event/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Event created successfully!') {
+          Swal.fire({
+            title: 'Success!',
+            text: data.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            window.location.href = 'http://127.0.0.1:8000/customer/account/';
+          });
+        } else {
+          Swal.fire({
+            title: 'Error!',
+            text: data.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      })
+      .catch(error => {
+        Swal.fire({
+          title: 'Error!',
+          text: 'An unexpected error occurred.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        console.error('Error:', error);
+      });
+    });
+  });
+</script>
+
+
+{% endblock %}

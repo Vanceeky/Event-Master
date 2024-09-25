@@ -1,0 +1,826 @@
+<!--
+=========================================================
+* Soft UI Design System - v1.0.9
+=========================================================
+
+* Product Page:  https://www.creative-tim.com/product/soft-ui-design-system 
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+* Coded by www.creative-tim.com
+
+ =========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. -->
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/static/assets/img/apple-icon.png" />
+  <link rel="icon" type="image/png" href="/static/assets/img/favicon.png" />
+
+  <title>Service Provider | slug | Event Master</title>
+
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+
+  <!-- Nucleo Icons -->
+  <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
+
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/static/assets/css/soft-design-system.css?v=1.0.9" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    #editor {
+      width: 100% !important;
+      /* Adjust width as needed */
+      height: 1000px !important;
+      /* Adjust height as needed */
+    }
+
+    textarea {
+      field-sizing: content;
+    }
+  </style>
+</head>
+
+<body class="index-page">
+  <!-- Navbar -->
+  <div class="container position-sticky z-index-sticky top-0">
+    <div class="row">
+      <div class="col-12">
+        {% include 'includes/nav.html' %}
+
+        <!-- End Navbar -->
+      </div>
+    </div>
+  </div>
+
+
+  <section class="pt-3 pb-4" id="count-stats">
+    
+    <div class="p-3 shadow-blur">
+      <div class="container">
+        <div class="page-header min-height-300 border-radius-xl mt-4" style="
+              background-image: url('/static/assets/img/curved-images/curved.jpg');
+              background-position-y: 50%;
+            "></div>
+        <div class="card card-body blur mx-4 mt-n6 overflow-hidden">
+          <div class="row gx-4">
+            <div class="col-auto">
+              <div class="avatar avatar-xl position-relative">
+                <img src="/static/assets/img/bruce-mars.jpg" alt="profile_image"
+                  class="w-100 border-radius-lg shadow-sm" />
+              </div>
+            </div>
+            <div class="col-auto my-auto">
+              <div class="h-100">
+                <h5 class="mb-1">{{ provider.name }}</h5>
+                <p class="mb-0 font-weight-bold text-sm text-capitalize">
+                  {{ provider.user.first_name }} {{ provider.user.last_name}}
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
+              <div class="nav-wrapper position-relative end-0">
+                <ul class="nav nav-pills bg-transparent nav-fill" id="myTab" role="tablist">
+                  <li class="nav-item" role="presentation">
+
+                    <a class="nav-link active" id="services-tab"  data-bs-toggle="tab" href="#services" role="tab"
+                      aria-controls="contact" aria-selected="false">Services</a>
+                  </li>
+
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="posts-tab" data-bs-toggle="tab" href="#posts" role="tab"
+                      aria-controls="profile" aria-selected="false">Posts</a>
+                  </li>
+
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row mt-3">
+        <div class="col-12 col-md-6 col-xl-3 mt-md-0 mt-4">
+          <div class="card h-auto">
+            <div class="card-header pb-0 p-3">
+              <div class="row">
+                <div class="col-md-8 d-flex align-items-center">
+                  <h6 class="mb-0">Profile Information</h6>
+                </div>
+                <div class="col-md-4 text-end">
+                  <a href="javascript:;">
+                    <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                      aria-hidden="true" aria-label="Edit Profile" data-bs-original-title="Edit Profile"></i><span
+                      class="sr-only">Edit Profile</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-3">
+              <p class="text-sm">{{ provider.desc }}</p>
+              <hr class="horizontal gray-light my-4" />
+              <ul class="list-group">
+                <li class="list-group-item border-0 ps-0 text-sm">
+                  <strong class="text-dark">Mobile:</strong> &nbsp; {{ provider.contact_number }}
+                </li>
+                <li class="list-group-item border-0 ps-0 text-sm">
+                  <strong class="text-dark">Email:</strong> &nbsp; {{ provider.user.email }}
+                </li>
+                <li class="list-group-item border-0 ps-0 text-sm">
+                  <strong class="text-dark">Location:</strong> &nbsp; {{ provider.address }}
+                </li>
+                <li class="list-group-item border-0 ps-0 pb-0">
+                  <strong class="text-dark text-sm">Social:</strong> &nbsp;
+                  <a class="btn btn-facebook btn-simple mb-0 ps-1 pe-2 py-0" href="javascript:;">
+                    <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+                  </a>
+                  <a class="btn btn-twitter btn-simple mb-0 ps-1 pe-2 py-0" href="javascript:;">
+                    <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
+                  </a>
+                  <a class="btn btn-instagram btn-simple mb-0 ps-1 pe-2 py-0" href="javascript:;">
+                    <i class="fab fa-instagram fa-lg" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-9 mt-xl-0 mt-4">
+          <div class="tab-content mt-3" id="myTabContent">
+            <div class="tab-pane fade show active" id="services" role="tabpanel" aria-labelledby="services-tab">
+              <div class="row">
+
+                {% for service in services %}
+                <div class="shadow-blur mb-3">
+                  <div class="row">
+                    <div class="col-lg-8">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="text-gradient text-info p-3">
+                          {{ service.name }}
+                        </h3>
+                        
+                        {% if request.user.id == provider.user.id %}
+                        <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
+                        data-service-name="{{ service.name }}"
+                        data-service-price="{{ service.price }}"
+                        data-service-description="{{ service.description }}"
+                        data-service-inclusions="{{ service.inclusions }}"
+                        data-provider-id="{{ provider.id }}">
+                          <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                            aria-hidden="true" aria-label="Edit Service" data-bs-original-title="Edit Service"></i><span
+                            class="sr-only">Edit Service</span>
+                        </a>
+                        {% endif %}
+                      </div>
+
+
+
+                        <p class="p-3">{{ service.description }}</p>
+                        <div class="row mt-5 p-2 mb-2">
+                          <div class="col-lg-3 col-12">
+                            <h6 class="text-dark tet-uppercase">
+                              What&#39;s included
+                            </h6>
+                          </div>
+                          <div class="col-6">
+                            <hr class="horizontal dark" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          {% for inclusion in service.inclusions_list %}
+                          <div class="col-lg-6 col-md-6 col-12">
+                            <div class="info d-flex align-items-center p-2">
+                              <div
+                                class="icon icon-shape icon-xs rounded-circle bg-gradient-info opacity-6 shadow text-center">
+                                <i class="fas fa-check opacity-10"></i>
+                              </div>
+                              <div>
+                                <span class="ps-2">{{ inclusion }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 my-auto">
+                      <div class="card-body text-center">
+                        <h6 class="mt-4 mb-0">Pay once, Own the Moment</h6>
+                        <h4 class="mt-0">
+                          <small>₱</small>{{ service.price }}
+                        </h4>
+                        <button type="button" class="btn bg-gradient-info btn-md mt-2">
+                          Get Access
+                        </button>
+                        <p class="text-sm">Base Price</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {% endfor %}
+
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+              <div class="shadow-blur mb-3 p-3">
+                <div class="row">
+
+                  {% for post in service_posts %}
+                    <div class="row">
+
+                      <div class="col-lg-6 p-3">
+                        <h3 class="mt-lg-0 mt-4">{{ post.title }}</h3>
+                        {{ post.description|safe }}
+                      </div>
+
+                      <div class="col-xl-6 col-lg-6 text-center">
+                        <div class="tab-content mt-3" id="myTabContent">
+                          {% for image in post.images.all %}
+                          <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="image_id_{{ image.id }}"
+                            role="tabpanel" aria-labelledby="image_id_{{ image.id }}-tab">
+                            <div class="row">
+                              <div class="col-md-12 mb-3">
+                                <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}"
+                                  style="width: 100%; height: 300px" />
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                          {% for image in post.images.all %}
+                          <li class="nav-item" role="presentation">
+                            <a class="nav-link{% if forloop.first %} active{% endif %}" id="image_id_{{ image.id }}-tab"
+                              data-bs-toggle="tab" href="#image_id_{{ image.id }}" role="tab"
+                              aria-controls="image_id_{{ image.id }}"
+                              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                              <img src="{{ image.image.url }}" alt="{{ image.description }}" style="width: 50px" />
+                            </a>
+                          </li>
+                          {% endfor %}
+                        </ul>
+                        <p class="text-sm mt-2">Date Posted: {{ post.created_at|timesince }}</p>
+                      </div>
+                    
+                    </div>
+                  
+
+                  {% endfor %}
+                  
+ 
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+  </section>
+
+  <!-- -------   START PRE-FOOTER 2 - simple social line w/ title & 3 buttons    -------- -->
+  <div class="pt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-5 ms-auto">
+          <h4 class="mb-1">Thank you for your support!</h4>
+          <p class="lead mb-0">
+            We offer the best services, that you can imagine.
+          </p>
+        </div>
+        <div class="col-lg-5 me-lg-auto my-lg-auto text-lg-end mt-5">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/soft-ui-design-system"
+            class="btn btn-gradient-info mb-0 me-2 text-info" target="_blank">
+            <i class="fab fa-facebook-square me-1"></i> Share
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=Check%20Soft%20UI%20Design%20System%20made%20by%20%40CreativeTim%20%23webdesign%20%23designsystem%20%23bootstrap5&url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fsoft-ui-design-system"
+            class="btn btn-info mb-0 me-2" target="_blank">
+            <i class="fab fa-twitter me-1"></i> Tweet
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- -------   END PRE-FOOTER 2 - simple social line w/ title & 3 buttons    -------- -->
+
+  <footer class="footer pt-5 mt-5">
+    <hr class="horizontal dark mb-5" />
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 mb-4 ms-auto">
+          <div>
+            <h6 class="text-gradient text-primary font-weight-bolder">
+              Soft UI Design System
+            </h6>
+          </div>
+          <div>
+            <h6 class="mt-3 mb-2 opacity-8">Social</h6>
+            <ul class="d-flex flex-row ms-n3 nav">
+              <li class="nav-item">
+                <a class="nav-link pe-1" href="https://www.facebook.com/CreativeTim/" target="_blank">
+                  <i class="fab fa-facebook text-lg opacity-8"></i>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link pe-1" href="https://twitter.com/creativetim" target="_blank">
+                  <i class="fab fa-twitter text-lg opacity-8"></i>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link pe-1" href="https://dribbble.com/creativetim" target="_blank">
+                  <i class="fab fa-dribbble text-lg opacity-8"></i>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link pe-1" href="https://github.com/creativetimofficial" target="_blank">
+                  <i class="fab fa-github text-lg opacity-8"></i>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link pe-1" href="https://www.youtube.com/channel/UCVyTG4sCw-rOvB9oHkzZD1w"
+                  target="_blank">
+                  <i class="fab fa-youtube text-lg opacity-8"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-2 col-sm-6 col-6 mb-4">
+          <div>
+            <h6 class="text-gradient text-primary text-sm">Company</h6>
+            <ul class="flex-column ms-n3 nav">
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/presentation" target="_blank">
+                  About Us
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/templates/free" target="_blank">
+                  Freebies
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/templates/premium" target="_blank">
+                  Premium Tools
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/blog" target="_blank">
+                  Blog
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-2 col-sm-6 col-6 mb-4">
+          <div>
+            <h6 class="text-gradient text-primary text-sm">Resources</h6>
+            <ul class="flex-column ms-n3 nav">
+              <li class="nav-item">
+                <a class="nav-link" href="https://iradesign.io/" target="_blank">
+                  Illustrations
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/bits" target="_blank">
+                  Bits & Snippets
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/affiliates/new" target="_blank">
+                  Affiliate Program
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-2 col-sm-6 col-6 mb-4">
+          <div>
+            <h6 class="text-gradient text-primary text-sm">Help & Support</h6>
+            <ul class="flex-column ms-n3 nav">
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/contact-us" target="_blank">
+                  Contact Us
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/knowledge-center" target="_blank">
+                  Knowledge Center
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://services.creative-tim.com/?ref=ct-soft-ui-footer" target="_blank">
+                  Custom Development
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/sponsorships" target="_blank">
+                  Sponsorships
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-2 col-sm-6 col-6 mb-4 me-auto">
+          <div>
+            <h6 class="text-gradient text-primary text-sm">Legal</h6>
+            <ul class="flex-column ms-n3 nav">
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/terms" target="_blank">
+                  Terms &amp; Conditions
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/privacy" target="_blank">
+                  Privacy Policy
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.creative-tim.com/license" target="_blank">
+                  Licenses (EULA)
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="text-center">
+            <p class="my-4 text-sm">
+              All rights reserved. Copyright ©
+              <script>
+                document.write(new Date().getFullYear());
+              </script>
+              Soft UI Design System by
+              <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODALS -->
+
+  <div class="modal fade" id="modal-add-service" tabindex="-1" role="dialog" aria-labelledby="modal-default"
+    aria-hidden="true">
+    <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modal-title-default">
+            Add new Service
+          </h6>
+
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <form id="serviceForm" method="POST" action="{% url 'create_service' %}">
+          {% csrf_token %}
+          <div class="modal-body">
+            <input type="hidden" name="provider_id" value="{{ provider.id }}" />
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Service Name:</label>
+              <input type="text" class="form-control" name="service_name" required placeholder="Service..." />
+            </div>
+
+            <div class="form-group">
+              <label for="example-number-input" class="form-control-label">Price:</label>
+              <input class="form-control" type="number" name="price" required placeholder="5000"
+                id="example-number-input" />
+            </div>
+
+            <div class="form-group">
+              <label for="exampleFormControlTextarea1">Description:</label>
+              <textarea class="form-control" name="description" required id="exampleFormControlTextarea1"
+                rows="2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="exampleFormControlTextarea2">Inclusions:</label>
+              <textarea class="form-control" name="inclusions" required id="exampleFormControlTextarea2"
+                rows="2"></textarea>
+              <small class="form-text text-muted">Please separate each inclusion with a comma.</small>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn bg-gradient-primary">
+              Save changes
+            </button>
+            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal HTML -->
+  <div class="modal fade" id="update-service" tabindex="-1" role="dialog" aria-labelledby="modal-default"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modal-title-default">Update Service</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <form id="update_serviceForm" method="POST" action="">
+          {% csrf_token %}
+          <div class="modal-body">
+            <input type="hidden" name="provider_id" id="provider_id" />
+            <div class="form-group">
+              <label for="service_name">Service Name:</label>
+              <input type="text" class="form-control" id="service_name" name="service_name" required placeholder="Service..." />
+            </div>
+
+            <div class="form-group">
+              <label for="price" class="form-control-label">Price:</label>
+              <input class="form-control" type="number" id="price" name="price" required placeholder="5000" />
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <textarea class="form-control" id="description" name="description" required rows="auto"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="inclusions">Inclusions:</label>
+              <textarea class="form-control" id="inclusions" name="inclusions" required rows="2"></textarea>
+              <small class="form-text text-muted">Please separate each inclusion with a comma.</small>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn bg-gradient-primary">Save changes</button>
+            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="modal-add-post" tabindex="-1" role="dialog" aria-labelledby="modal-default"
+    aria-hidden="true">
+    <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modal-title-default">
+            Create new Post
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form id="createPostForm" id="createPostForm" method="POST" action="{% url 'create_post' %}"
+          enctype="multipart/form-data">
+          <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" name="provider_id" value="{{ provider.id }}" />
+
+            <div class="form-group">
+              <label for="postTitle">Title:</label>
+              <input type="text" class="form-control" name="post_title" id="postTitle" required placeholder="" />
+            </div>
+
+            <div class="form-group">
+              <label for="exampleFormControlTextarea1">Caption: </label>
+              <textarea class="form-control" name="description" id="editor" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="postImages">Images:</label>
+              <input type="file" class="form-control" name="post_images" id="postImages" multiple />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn bg-gradient-primary">
+              Save post
+            </button>
+            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!--   Core JS Files   -->
+  {% include 'includes/scripts.html' %}
+
+  <script src="https://cdn.ckeditor.com/ckeditor5/37.0.0/classic/ckeditor.js"></script>
+
+  <script>
+    ClassicEditor.create(document.querySelector("#editor"))
+
+      .then((editor) => {
+        console.log(editor);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  </script>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("serviceForm");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest", // Ensure it's an AJAX request
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message) {
+              // Show a success message with a timer
+              Swal.fire({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                timer: 1000, // Time in milliseconds (2000ms = 2 seconds)
+                timerProgressBar: true,
+                confirmButton: false,
+
+                showConfirmButton: false,
+                didClose: () => {
+                  // Redirect to the provider page after the alert closes
+                  const providerId = form.querySelector(
+                    'input[name="provider_id"]'
+                  ).value;
+                  window.location.href = `/service-provider/${providerId}/`;
+                },
+              });
+            } else {
+              // Show an error message with a timer
+              Swal.fire({
+                title: "Error!",
+                text: "Something went wrong!",
+                icon: "error",
+                timer: 2000, // Time in milliseconds (2000ms = 2 seconds)
+                timerProgressBar: true,
+              });
+            }
+          })
+          .catch((error) => {
+            // Show an error message with a timer
+            Swal.fire({
+              title: "Error!",
+              text: "An error occurred while processing your request.",
+              icon: "error",
+              timer: 2000, // Time in milliseconds (2000ms = 2 seconds)
+              timerProgressBar: true,
+            });
+          });
+      });
+    });
+  </script>
+
+  <script>
+    document
+      .getElementById("createPostForm")
+      .addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest", // This header is optional but useful for Django to recognize AJAX requests
+            "X-CSRFToken": formData.get("csrfmiddlewaretoken"), // Include CSRF token in the request headers
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message === "Post created successfully!") {
+              Swal.fire({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                timer: 1000, // Time in milliseconds (2000ms = 2 seconds)
+                timerProgressBar: true,
+                confirmButton: false,
+
+                showConfirmButton: false,
+                didClose: () => {
+                  // Redirect to the provider page after the alert closes
+                  const providerId = form.querySelector(
+                    'input[name="provider_id"]'
+                  ).value;
+                  window.location.href = `/service-provider/${providerId}/`;
+                },
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: data.message || "An unexpected error occurred.",
+                confirmButtonText: "OK",
+              });
+            }
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Error!",
+              text: "An error occurred while processing your request.",
+              confirmButtonText: "OK",
+            });
+          });
+      });
+  </script>
+
+  <script>
+    // JavaScript to populate the modal with service data
+    document.addEventListener('DOMContentLoaded', function () {
+      // Attach event listener to each "Update" button
+      document.querySelectorAll('.update-button').forEach(button => {
+        button.addEventListener('click', function () {
+          // Get the service data from the button's data attributes
+          const serviceId = this.getAttribute('data-service-id');
+          const serviceName = this.getAttribute('data-service-name');
+          const servicePrice = this.getAttribute('data-service-price');
+          const serviceDescription = this.getAttribute('data-service-description');
+          const serviceInclusions = this.getAttribute('data-service-inclusions');
+          const providerId = this.getAttribute('data-provider-id');
+
+          // Populate the modal fields
+          document.getElementById('provider_id').value = providerId;
+          document.getElementById('service_name').value = serviceName;
+          document.getElementById('price').value = servicePrice;
+          document.getElementById('description').textContent = serviceDescription;
+          document.getElementById('inclusions').textContent = serviceInclusions;
+          
+          // Set the form action to the correct URL if needed
+          const form = document.getElementById('update_serviceForm');
+          form.action = `/update-service/${serviceId}/`; // Example URL pattern
+        });
+        
+      });
+    });
+
+  </script>
+
+</body>
+
+</html>

@@ -29,15 +29,26 @@
   <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
   <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <script src="/static/assets/js/fontawesome.js" crossorigin="anonymous"></script>
+
   <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
   <!-- CSS Files -->
   <link id="pagestyle" href="/static/assets/css/soft-ui-dashboard.css?v=1.0.7" rel="stylesheet" />
+  
+    
+    <link rel="stylesheet" href="/static/assets/css/bs-stepper.min.css">
+
+    <link rel="stylesheet" href="/static/assets/css/sweetalert2.min.css">
+
+    {% block stylesheet %}
+
+    {% endblock %}
+
   <!-- Nepcha Analytics (nepcha.com) -->
 </head>
 
 <body class="">
-  <!-- Navbar -->
+  <!-- Navbar 
   <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent mt-4">
     <div class="container">
         <a class="navbar-brand font-weight-bolder ms-sm-3 text-white"
@@ -292,13 +303,27 @@
         </div>
     </div>
   </nav>
+-->
+      <!-- Navbar -->
+      <div class="container position-sticky z-index-sticky top-0">
+        <div class="row">
+          <div class="col-12">
+  
+            
+            {% include 'includes/nav.html' %}
+            <!-- End Navbar -->
+  
+          </div>
+        </div>
+      </div>
+  
   <!-- End Navbar -->
-  <main class="main-content  mt-0">
-    <section class="min-vh-100 mb-8">
-      <div class="page-header relative align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg" style="background-image: url('/static/assets/img/office-dark.jpg');">
+  <main class="main-content">
+    <section class="min-vh-100">
+      <div class="page-header relative align-items-start min-vh-50 pt-5" style="background-image: url('/static/assets/img/office-dark.jpg');">
 
   
-        <div class="container">
+        <div class="container mt-5">
           <div class="row justify-content-center">
             <div class="col-lg-5 text-center mx-auto">
               <h1 class="text-white mb-2 mt-5">Welcome!</h1>
@@ -325,10 +350,10 @@
 
       </div>
 
-      
 
 
-      <div class="container">
+
+      <div class="container mt-5">
 
         
 
@@ -391,7 +416,7 @@
             <p class="mb-0 text-secondary">
               Copyright © <script>
                 document.write(new Date().getFullYear())
-              </script> Soft by Creative Tim.
+              </script> Event Master by Vanceeq.
             </p>
           </div>
         </div>
@@ -401,6 +426,15 @@
   </main>
   <!--   Core JS Files   -->
   {% include 'includes/scripts.html' %}
+
+
+  {% block js %}
+
+  {% endblock %}
+
+  
+
+
 </body>
 
 </html>

@@ -1,0 +1,298 @@
+{% extends 'base/layout.html' %}
+
+{% block title %} Services {% endblock %}
+
+
+{% block content %}
+
+
+
+
+<section class="pt-3 pb-4" id="count-stats">
+
+    <div class="p-3 shadow-blur">
+      <div class="container">
+        <div class="page-header min-height-300 border-radius-xl mt-4" style="
+              background-image: url('/static/assets/img/curved-images/curved11.jpg');
+              background-position-y: 50%;">
+        </div>
+        <div class="card card-body blur mx-4 mt-n6 overflow-hidden">
+            <div class="card-body">
+                <h5 class="mb-4">Service Details</h5>
+                <div class="row">
+                    
+                   <div class="col-xl-5 col-lg-6 text-center">
+
+                        <div class="tab-content mt-3" id="myTabContent">
+                          {% for image in images %}
+                          <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="image_id_{{ image.id }}"
+                            role="tabpanel" aria-labelledby="image_id_{{ image.id }}-tab">
+                            <div class="row">
+                              <div class="col-md-12 mb-3">
+                                <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}"
+                                  style="width: 100%; height: 300px" />
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                           
+                        {% if images %}
+                          {% for image in images %}
+                          <li class="nav-item" role="presentation">
+                            <a class="nav-link{% if forloop.first %} active{% endif %}" id="image_id_{{ image.id }}-tab"
+                              data-bs-toggle="tab" href="#image_id_{{ image.id }}" role="tab"
+                              aria-controls="image_id_{{ image.id }}"
+                              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                              <img src="{{ image.image.url }}" alt="{{ image.description }}" style="width: 100px" />
+                            </a>
+                          </li>
+                          {% endfor %}
+
+                        {% else %}
+
+                        <p> No image available </p>
+
+                        {% endif %}
+
+
+                        </ul>
+
+                   </div>
+                   
+
+                   <div class="col-lg-5 mx-auto">
+
+                      <h3 class="mt-lg-0 mt-4">{{ service.name }}</h3>
+                      <div class="rating">
+                         <i class="fas fa-star" aria-hidden="true"></i>
+                         <i class="fas fa-star" aria-hidden="true"></i>
+                         <i class="fas fa-star" aria-hidden="true"></i>
+                         <i class="fas fa-star" aria-hidden="true"></i>
+                         <i class="fas fa-star-half-alt" aria-hidden="true"></i>
+                      </div>
+                      <br>
+                      <p>{{ service.description }}</p>
+                        <h6 class="mb-0 mt-3">Base Price: </h6>
+                      <h5>₱ {{ service.price }}</h5>
+                      <label class="mt-2">Inclusions</label>
+                        <ul>
+                            
+                            {% for inclusion in service.inclusions_list %}
+                            <li>{{ inclusion }}</li>
+                            {% endfor %}
+                        </ul>
+
+                      <div class="row mt-4">
+                         <div class="col-lg-5">
+                            <button class="add-service-btn btn btn-primary mb-0 mt-lg-auto w-100" type="button" data-bs-toggle="modal" data-bs-target="#add-service-event" name="button" data-service-id="{{service.id}}">Add to event</button>
+                         </div>
+                         <div class="col-lg-5">
+                          <button class="btn btn-primary mb-0 mt-lg-auto w-100" type="button" name="button">Inquire</button>
+                       </div>
+                      </div>
+
+                   </div>
+                </div>
+
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row mt-3">
+        <div class="col-12 mt-md-0 mt-4">
+          <div class="card h-auto">
+            <div class="card-header pb-0 p-3">
+              <div class="row">
+                <div class="col-md-8 d-flex align-items-center">
+                  <h6 class="mb-0">Other Related Services</h6>
+                </div>
+
+              </div>
+            </div>
+            <div class="card-body p-3">
+                <div class="row">
+                    {% for service in services %}
+                    <div class="col-md-4">
+    
+                        <div class="card">
+                            <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                              <a href="javascript:;" class="d-block">
+                                <img src="/static/assets/img/anastasia.jpg" class="img-fluid border-radius-lg">
+                              </a>
+                            </div>
+                          
+                            <div class="card-body pt-2">
+                                
+                                <div class="d-flex align-items-center justify-content-between">
+    
+                                    <div class="d-flex">
+                                      <h6 class="text-sm mb-0"><i class="fa fa-star"></i></h6>
+                                      <h6 class="text-sm mb-0"><i class="fa fa-star"></i></h6>
+                                      <h6 class="text-sm mb-0"><i class="fa fa-star"></i></h6>
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-outline-info btn-sm mb-0 p-2">₱{{ service.price }}</button>
+                                </div>
+    
+                              <a href="{% url 'service-details' service.id %}" type="button" class="text-gradient text-info card-title h5 d-block"  data-bs-toggle="tooltip" data-bs-placement="left" title="View Service">
+                                {{ service.name }}
+                              </a>
+                              <p class="card-description mb-4">
+                                {{ service.description|truncatewords:10 }}
+                              </p>
+                              <div class="author d-flex justify-content-between align-items-center">
+                                <div class="name">
+                                  
+                                <img src="{{ service.provider.logo.url }}" alt="..." class="avatar shadow">
+                                  <span class="ms-2"><a href="{% url 'service-provider' service.provider.id %}">{{ service.provider }}</a></span>
+    
+                                </div>
+                                
+                                <small>{{service.category }}</small>
+    
+                              </div>
+                            </div>
+                        </div>
+                
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+   
+</section>
+
+
+<!--- MODALS -->
+
+<div class="col-md-4">
+  <div class="modal fade" id="add-service-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+    <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modal-title-notification">Add service to event:</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form method="POST" id="add-service-form" action="{% url 'add_service_to_event' %}">
+          {% csrf_token %}
+
+          <input type="hidden" name="service_id" value="{{service.id }}">
+
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="exampleFormControlSelect1">Please select an event:</label>
+              <select class="form-control" id="event_select" name="event_id">
+                <option>.............</option>
+                <option></option>
+              </select>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-white">Ok, Got it</button>
+            <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Fetch events from the server
+      fetch('/fetch-events/')
+          .then(response => response.json())
+          .then(data => {
+              const selectElement = document.getElementById('event_select');
+              const events = data.events;
+
+              // Clear existing options except the placeholder
+              selectElement.innerHTML = '<option value="">.............</option>';
+
+              // Populate the dropdown with event options
+              events.forEach(event => {
+                  const option = document.createElement('option');
+                  option.value = event.id;
+                  option.textContent = `${event.title} (${event.event_date})`;
+                  selectElement.appendChild(option);
+              });
+          })
+          .catch(error => {
+              console.error('Error fetching events:', error);
+          });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('add-service-form'); // Replace with your form's ID
+
+      form.addEventListener('submit', function(event) {
+          event.preventDefault();
+
+          const formData = new FormData(form);
+
+          fetch('/add-service-to-event/', {
+              method: 'POST',
+              body: formData,
+              headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.message === 'Service added to event successfully') {
+                  Swal.fire({
+                      title: 'Success!',
+                      text: data.message,
+                      icon: 'success',
+                      confirmButtonText: 'OK'
+                  }).then(() => {
+                      window.location.href = '/customer/account/';
+                  });
+              } else {
+                  Swal.fire({
+                      text: data.message,
+                      icon: 'info',
+                      confirmButtonText: 'OK'
+                  });
+              }
+          })
+          .catch(error => {
+              Swal.fire({
+                  title: 'Error!',
+                  text: 'An unexpected error occurred.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              console.error('Error:', error);
+          });
+      });
+  });
+</script>
+
+
+{% endblock %}
