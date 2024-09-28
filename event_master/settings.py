@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ['192.168.68.101', 'localhost', '127.0.0.1']
 INSTALLED_APPS = [
     'jazzmin',
     'ckeditor',
-    'django_quill',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

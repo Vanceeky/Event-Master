@@ -30,6 +30,8 @@ def index(request):
 
 
 
+def inbox(request):
+    return render(request, 'base/inbox.html')
 
 
 

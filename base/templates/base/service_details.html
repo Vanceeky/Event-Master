@@ -2,6 +2,35 @@
 
 {% block title %} Services {% endblock %}
 
+{% block stylesheet %}
+<style>
+
+  .sidebar {
+    position: fixed;
+    bottom: -640px; /* Hidden by default */
+    right: 0;
+    width: 30%; /* Full width */
+    height: 640px; /* Adjust height as needed */
+    background-color: #f8f9fa;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+    transition: bottom 0.3s;
+    z-index: 1000;
+    border-radius: 20px;
+}
+
+
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    float: right;
+}
+
+
+</style>
+{% endblock %}
 
 {% block content %}
 
@@ -12,93 +41,82 @@
 
     <div class="p-3 shadow-blur">
       <div class="container">
-        <div class="page-header min-height-300 border-radius-xl mt-4" style="
-              background-image: url('/static/assets/img/curved-images/curved11.jpg');
-              background-position-y: 50%;">
+        <div class="page-header min-height-300 border-radius-xl mt-4" style="background-image: url('/static/assets/img/curved-images/curved11.jpg'); background-position-y: 50%;">
         </div>
         <div class="card card-body blur mx-4 mt-n6 overflow-hidden">
             <div class="card-body">
                 <h5 class="mb-4">Service Details</h5>
                 <div class="row">
-                    
-                   <div class="col-xl-5 col-lg-6 text-center">
-
+                    <div class="col-lg-6 col-md-12 text-center">
                         <div class="tab-content mt-3" id="myTabContent">
-                          {% for image in images %}
-                          <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="image_id_{{ image.id }}"
-                            role="tabpanel" aria-labelledby="image_id_{{ image.id }}-tab">
-                            <div class="row">
-                              <div class="col-md-12 mb-3">
-                                <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}"
-                                  style="width: 100%; height: 300px" />
-                              </div>
+                            {% for image in images %}
+                            <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="image_id_{{ image.id }}" role="tabpanel" aria-labelledby="image_id_{{ image.id }}-tab">
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}" style="height: auto; max-height: 300px;"/>
+                                    </div>
+                                </div>
                             </div>
-                          </div>
-                          {% endfor %}
+                            {% endfor %}
                         </div>
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
-                           
-                        {% if images %}
-                          {% for image in images %}
-                          <li class="nav-item" role="presentation">
-                            <a class="nav-link{% if forloop.first %} active{% endif %}" id="image_id_{{ image.id }}-tab"
-                              data-bs-toggle="tab" href="#image_id_{{ image.id }}" role="tab"
-                              aria-controls="image_id_{{ image.id }}"
-                              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                              <img src="{{ image.image.url }}" alt="{{ image.description }}" style="width: 100px" />
-                            </a>
-                          </li>
-                          {% endfor %}
-
-                        {% else %}
-
-                        <p> No image available </p>
-
-                        {% endif %}
-
-
+                            {% if images %}
+                            {% for image in images %}
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link{% if forloop.first %} active{% endif %}" id="image_id_{{ image.id }}-tab" data-bs-toggle="tab" href="#image_id_{{ image.id }}" role="tab" aria-controls="image_id_{{ image.id }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                    <img src="{{ image.image.url }}" alt="{{ image.description }}" style="width: auto; max-width: 50px; height: auto; max-height: 50px"/>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% else %}
+                            <p>No image available</p>
+                            {% endif %}
                         </ul>
-
-                   </div>
-                   
-
-                   <div class="col-lg-5 mx-auto">
-
-                      <h3 class="mt-lg-0 mt-4">{{ service.name }}</h3>
-                      <div class="rating">
-                         <i class="fas fa-star" aria-hidden="true"></i>
-                         <i class="fas fa-star" aria-hidden="true"></i>
-                         <i class="fas fa-star" aria-hidden="true"></i>
-                         <i class="fas fa-star" aria-hidden="true"></i>
-                         <i class="fas fa-star-half-alt" aria-hidden="true"></i>
-                      </div>
-                      <br>
-                      <p>{{ service.description }}</p>
-                        <h6 class="mb-0 mt-3">Base Price: </h6>
-                      <h5>₱ {{ service.price }}</h5>
-                      <label class="mt-2">Inclusions</label>
+    
+                        <div class="d-flex mt-4 align-items-center">
+                            <img src="{{ service.provider.logo.url}}" class="avatar avatar-xl">
+                            <div class="ms-3">
+                                <h4 class="cursor-pointer">{{ service.provider.name }}</h4>
+                                <a href="javascript:void(0);" class="btn btn-outline-info" id="chatButton"><i class="fa fa-message me-2"></i>Chat Now</a>
+                                <a href="{% url 'service-provider' service.provider.id %}" class="btn bg-gradient-info"><i class="fa fa-shop me-2"></i>View Profile</a>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-lg-6 col-md-12 mx-auto">
+                        <h3 class="mt-lg-0 mt-4">{{ service.name }}</h3>
+                        <div class="rating">
+                            <i class="fas fa-star" aria-hidden="true"></i>
+                            <i class="fas fa-star" aria-hidden="true"></i>
+                            <i class="fas fa-star" aria-hidden="true"></i>
+                            <i class="fas fa-star" aria-hidden="true"></i>
+                            <i class="fas fa-star-half-alt" aria-hidden="true"></i>
+                        </div>
+                        <br>
+                        <p>{{ service.description }}</p>
+                        <h6 class="mb-0 mt-3">Base Price:</h6>
+                        <h5>₱ {{ service.price }}</h5>
+                        <label class="mt-2">Inclusions</label>
                         <ul>
-                            
                             {% for inclusion in service.inclusions_list %}
                             <li>{{ inclusion }}</li>
                             {% endfor %}
                         </ul>
-
-                      <div class="row mt-4">
-                         <div class="col-lg-5">
-                            <button class="add-service-btn btn btn-primary mb-0 mt-lg-auto w-100" type="button" data-bs-toggle="modal" data-bs-target="#add-service-event" name="button" data-service-id="{{service.id}}">Add to event</button>
-                         </div>
-                         <div class="col-lg-5">
-                          <button class="btn btn-primary mb-0 mt-lg-auto w-100" type="button" name="button">Inquire</button>
-                       </div>
-                      </div>
-
-                   </div>
+    
+                        <div class="row mt-4">
+                            <div class="col-lg-6 col-12">
+                                <button class="add-service-btn btn btn-outline-info mb-2 w-100" type="button" data-bs-toggle="modal" data-bs-target="#add-service-event" data-service-id="{{service.id}}">Add to event</button>
+                            </div>
+                            <div class="col-lg-6 col-12">
+                                <button class="btn bg-gradient-info mb-0 w-100" type="button">Inquire</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
             </div>
         </div>
-      </div>
+    </div>
+    
     </div>
 
     <div class="container">
@@ -173,6 +191,185 @@
 </section>
 
 
+<div id="chatSidebar" class="sidebar">
+  <div class="sidebar-content">
+      <div class="card blur shadow-blur max-height-vh-70">
+        <div class="card-header shadow-lg">
+
+          <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <img alt="Image" src="{{ service.provider.logo.url }}" class="avatar">
+                <div class="ms-3">
+                  <h6 class="mb-0 d-block">{{ service.provider.name }}</h6>
+                  <span class="text-sm text-capitalize text-dark opacity-8">{{ service.provider.user.first_name }} {{ service.provider.user.last_name}}</span>
+                </div>
+
+            </div>
+
+            <div class="">
+              <button id="closeSidebar" class="close-btn"><i class="fa fa-close"></i></button>
+            </div>
+
+
+          </div>
+
+        </div>
+        <div class="card-body overflow-auto overflow-x-hidden">
+           <div class="row justify-content-start mb-4">
+              <div class="col-auto">
+                 <div class="card ">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-1">
+                          It contains a lot of good lessons about effective practices
+                       </p>
+                       <div class="d-flex align-items-center text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>3:14am</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row justify-content-end text-right mb-4">
+              <div class="col-auto">
+                 <div class="card bg-gray-200">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-1">
+                          Can it generate daily design links that include essays and data visualizations ?<br>
+                       </p>
+                       <div class="d-flex align-items-center justify-content-end text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>4:42pm</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row mt-4">
+              <div class="col-md-12 text-center">
+                 <span class="badge text-dark">Wed, 3:27pm</span>
+              </div>
+           </div>
+           <div class="row justify-content-start mb-4">
+              <div class="col-auto">
+                 <div class="card ">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-1">
+                          Yeah! Responsive Design is geared towards those trying to build web apps
+                       </p>
+                       <div class="d-flex align-items-center text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>4:31pm</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row justify-content-end text-right mb-4">
+              <div class="col-auto">
+                 <div class="card bg-gray-200">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-1">
+                          Excellent, I want it now !
+                       </p>
+                       <div class="d-flex align-items-center justify-content-end text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>4:42pm</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row justify-content-start mb-4">
+              <div class="col-auto">
+                 <div class="card ">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-1">
+                          You can easily get it; The content here is all free
+                       </p>
+                       <div class="d-flex align-items-center text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>4:42pm</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row justify-content-end text-right mb-4">
+              <div class="col-auto">
+                 <div class="card bg-gray-200">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-1">
+                          Awesome, blog is important source material for anyone who creates apps? <br>
+                          Beacuse these blogs offer a lot of information about website development.
+                       </p>
+                       <div class="d-flex align-items-center justify-content-end text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>4:42pm</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row justify-content-start mb-4">
+              <div class="col-5">
+                 <div class="card ">
+                    <div class="card-body p-2">
+                       <div class="col-12 p-0">
+                          <img src="https://images.unsplash.com/photo-1602142946018-34606aa83259?ixlib=rb-1.2.1&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=1762&amp;q=80" alt="Rounded image" class="img-fluid mb-2 border-radius-lg">
+                       </div>
+                       <div class="d-flex align-items-center text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>4:47pm</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row justify-content-end text-right mb-4">
+              <div class="col-auto">
+                 <div class="card bg-gray-200">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-0">
+                          At the end of the day … the native dev apps is where users are
+                       </p>
+                       <div class="d-flex align-items-center justify-content-end text-sm opacity-6">
+                          <i class="ni ni-check-bold text-sm me-1"></i>
+                          <small>4:42pm</small>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <div class="row justify-content-start">
+              <div class="col-auto">
+                 <div class="card ">
+                    <div class="card-body py-2 px-3">
+                       <p class="mb-0">
+                          Charlie is Typing...
+                       </p>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+        <div class="card-footer d-block">
+           <form class="align-items-center">
+              <div class="d-flex">
+                 <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Type here" aria-label="Message example input" onfocus="focused(this)" onfocusout="defocused(this)">
+                 </div>
+                 <button class="btn bg-gradient-primary mb-0 ms-2">
+                 <i class="ni ni-send"></i>
+                 </button>
+              </div>
+           </form>
+        </div>
+      </div>      <!-- Add chat input and messages here -->
+  </div>
+</div>
+
+
 <!--- MODALS -->
 
 <div class="col-md-4">
@@ -216,8 +413,32 @@
 
 
 {% block js %}
+<script>
+  document.getElementById('chatButton').addEventListener('click', function() {
+    document.getElementById('chatSidebar').style.bottom = '0'; // Show sidebar
+});
 
+document.getElementById('closeSidebar').addEventListener('click', function() {
+    document.getElementById('chatSidebar').style.bottom = '-640px'; // Hide sidebar
+});
+</script>
+<script>
 
+  window.addEventListener('resize', function() {
+    const container = document.querySelector('.container');
+    if (window.innerWidth < 576) {
+        container.classList.remove('container');
+    } else {
+        container.classList.add('container');
+    }
+});
+
+// Initial check
+if (window.innerWidth < 576) {
+    document.querySelector('.container').classList.remove('container');
+}
+
+</script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
       // Fetch events from the server

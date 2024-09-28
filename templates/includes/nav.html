@@ -75,8 +75,15 @@
                             {% for group in request.user.groups.all %}
                                 {% if group.name == 'customer' %}
 
-                                
-                                    <li class="nav-item dropdown dropdown-hover ms-lg-auto mx-2">
+                                    <li class="nav-item dropdown dropdown-hover ms-lg-auto  mx-2">
+                                        <a class="nav-link ps-2  cursor-pointer align-items-center"
+                                            href="{% url 'inbox' %}" aria-expanded="false">
+                                            Inbox
+                                        </a>
+
+                                    </li>
+
+                                    <li class="nav-item dropdown dropdown-hover mx-2">
                                         <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center"
                                             href="javascript:;" id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
                                             Account
@@ -166,6 +173,8 @@
                     
                                         </div>
                                     </li>
+
+
 
 
 
