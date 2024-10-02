@@ -1,0 +1,237 @@
+{% extends 'base/layout.html' %}
+
+{% block title %} Customer Account {% endblock %}
+
+{% block stylesheet %}
+
+{% endblock %}
+
+{% block content %}
+<section class="pt-3 pb-4" id="count-stats">
+    
+    <div class="p-3 ">
+      <div class="container">
+        <div class="page-header min-height-300 border-radius-xl mt-4\" style="
+              background-image: url('/static/assets/img/curved-images/curved.jpg');
+              background-position-y: 50%;
+            ">
+        </div>
+
+
+        <div class="card mx-4 mb-2 mt-n6 overflow-hidden">
+            
+            {% for event in events %}
+                <div class="card mb-3 mt-lg-0 mt-4" id="event_{{ event.id }}">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card-body h-auto pb-0">
+                            <!-- Event details -->
+                            <div class="row align-items-center mb-3">
+                            <div class="col-9">
+                                <h5 class="mb-0">
+                                    <a href="javascript:;">{{ event.title }}</a>
+                                </h5>
+                                <span class="text-sm ms-auto mt-0">{{ event.event_date }}</span>
+                            </div>
+                            <div class="col-3 text-end">
+                                <div class="dropstart">
+                                    <a href="javascript:;" class="text-secondary" id="dropdownMarketingCard" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-lg-start px-2 py-3" aria-labelledby="dropdownMarketingCard">
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Edit Team</a></li>
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Add Member</a></li>
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">See Details</a></li>
+                                        <li>
+                                        <hr class="dropdown-divider">
+                                        </li>
+                                        <li><a class="dropdown-item border-radius-md text-danger" href="javascript:;">Remove Team</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            </div>
+                            <ul class="list-unstyled mx-auto">
+
+                                <li class="d-flex">
+                                    <p class="mb-0">Venue:</p>
+                                    <span class="ms-auto">{{ event.location }}</span>
+                                </li>
+
+                                <li>
+                                    <hr class="horizontal dark">
+                                </li>
+
+                                <li class="d-flex">
+                                    <p class="mb-0">Budget:</p>
+                                    <span class="ms-auto" id="budget_{{ event.id }}">₱ {{ event.budget }}</span>
+                                </li>
+
+                                <li>
+                                    <hr class="horizontal dark">
+                                </li>
+
+                                <li class="d-flex">
+                                    <p class="mb-0">Estimated Bill:</p>
+                                    <span class="ms-auto" id="estimated_bill_{{ event.id }}">₱ 0.00</span>
+                                </li>
+
+                                <li id="budget_note_{{ event.id }}" class="mt-4 d-none">
+                                    <p class="text-danger">Note: The estimated bill exceeds the budget.</p>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body pb-0">
+                            {% if event.selected_services.all %}
+                            <div class="table-responsive">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">
+                                        Service
+                                        </th>
+                                        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Price</th>
+                                        
+                                        <th class="text-uppercase text-center text-secondary text-sm font-weight-bolder opacity-7 ps-2">Category</th>
+                                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Status</th>
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for selected_service in event.selected_services.all%}
+                                    <tr>
+                                        <td>
+                                        <div class="d-flex align-items-center px-2 py-1">
+                                            <div class="form-check text-center">
+                                                <input class="form-check-input" type="checkbox" value="" id="">
+                                            </div>
+                                            <div>
+                                                <img src="{{ selected_service.service.provider.logo.url }}" class="avatar avatar-sm me-3">
+                                            </div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-md"><a href="{% url 'service-details' selected_service.service.id %}">{{ selected_service.service.name }}</a></h6>
+                                                <p class="text-md text-secondary mb-0"><a href="{% url 'service-provider' selected_service.service.provider.id %}">{{ selected_service.service.provider }}</a></p>
+                                            </div>
+                                        </div>
+                                        </td>
+                                        <td>
+                                        <p class="text-md font-weight-bold mb-0 service-price"> ₱ {{ selected_service.service.price|floatformat:0 }}</p>
+                                        </td>
+                                        <td class="align-middle text-center text-md">
+                                            <span class="badge badge-pill bg-gradient-info">{{ selected_service.service.category }}</span>
+                                        </td>
+                                        <td class="align-middle text-center text-md">
+                                        <span class="badge badge-pill bg-gradient-info">{{ selected_service.status }}</span>
+                                        </td>
+                                        <td class="align-middle">
+                                        <a href="{% url 'remove_service_from_event' selected_service.id %}" class="text-danger" aria-expanded="false" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Service">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                            {% else %}
+                            <li>No services associated with this event.</li>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer border-top">
+                    asd
+                </div>
+                
+                </div>
+
+            {% empty %}
+                <li>No events found.</li>
+            {% endfor %}
+
+        </div>
+
+
+
+
+      </div>
+    </div>
+    
+   
+</section>
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      function calculateEstimatedBill() {
+        // Select all event cards
+        const eventCards = document.querySelectorAll('.card');
+        console.log('Event Cards:', eventCards); // Debug: Check selected event cards
+        
+        // Loop through each event card to calculate estimated bills
+        eventCards.forEach(card => {
+          const eventId = card.id.split('_')[1]; // Extract event ID from card ID
+          console.log('Processing Event ID:', eventId); // Debug: Check the extracted event ID
+          
+          // Select all price elements for this event
+          const prices = card.querySelectorAll('.service-price');
+          console.log('Prices for Event:', prices); // Debug: Check selected prices
+          
+          let total = 0;
+  
+          // Calculate the total estimated bill for this event
+          prices.forEach(priceElement => {
+            const priceText = priceElement.textContent.trim().replace('₱', '').replace(',', '');
+            const price = parseFloat(priceText);
+            if (!isNaN(price)) {
+              total += price;
+            }
+          });
+  
+          console.log('Total Estimated Bill for Event:', total); // Debug: Check the calculated total
+          
+          // Update the estimated bill element for this event
+          const estimatedBillElement = card.querySelector(`#estimated_bill_${eventId}`);
+          if (estimatedBillElement) {
+            estimatedBillElement.textContent = '₱ ' + total.toFixed(2);
+            console.log('Updated Estimated Bill Element:', estimatedBillElement); // Debug: Check the updated element
+          }
+  
+          // Extract and compare the budget
+          const budgetElement = card.querySelector(`#budget_${eventId}`);
+          const budgetNoteElement = card.querySelector(`#budget_note_${eventId}`);
+  
+          if (budgetElement && estimatedBillElement && budgetNoteElement) {
+            const budgetText = budgetElement.textContent.trim().replace('₱', '').replace(',', '');
+            const budget = parseFloat(budgetText);
+            
+            console.log('Budget for Event:', budget); // Debug: Check the extracted budget
+  
+            if (budget && total > budget) {
+              budgetNoteElement.classList.remove('d-none');
+              console.log('Budget Note: The estimated bill exceeds the budget.'); // Debug: Check if the note is shown
+            } else {
+              budgetNoteElement.classList.add('d-none');
+              console.log('Budget Note: The estimated bill is within the budget.'); // Debug: Check if the note is hidden
+            }
+          }
+        });
+      }
+      
+      calculateEstimatedBill();
+    });
+  </script>
+
+  
+
+{% endblock %}

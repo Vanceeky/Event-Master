@@ -1,0 +1,6 @@
+{% for message in chat_messages %}
+    <div class="chat-message">
+        <strong>{{ message.author.username }}:</strong> {{ message.body }}
+        <span class="text-muted">{{ message.created_at|time:"H:i" }}</span>
+    </div>
+{% endfor %}

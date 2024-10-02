@@ -2,7 +2,9 @@ from django.shortcuts import render
 from . models import *
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-# Create your views here.
+
+from django.db.models import Count
+
 
 def index(request):
     service_providers = ServiceProvider.objects.all()[:5]
@@ -57,8 +59,8 @@ def service_provider(request, provider_id):
     services = Service.objects.filter(provider=provider)
     
     #service_posts = ServicePost.objects.filter(service__in=services).prefetch_related('images')
-    service_posts = ServicePost.objects.filter(created_by=provider).prefetch_related('images')
-
+    service_posts = ServicePost.objects.filter(created_by=provider).prefetch_related('comments', 'images')
+    
     for service in services:
         inclusions_list = service.inclusions.split(',') if service.inclusions else []
 
@@ -174,6 +176,26 @@ def service_details(request, service_id):
     return render(request, 'base/service_details.html', context)
 
 
+def added_service_page(request):
+
+    customer = Customer.objects.get(user = request.user)
+    events = Event.objects.filter(customer=customer).prefetch_related('selected_services__service')
+    
+    for event in events:
+        for selected_service in event.selected_services.all():
+            inclusions = selected_service.service.inclusions
+            if inclusions:
+                # Split the inclusions by comma and strip any extra spaces
+                selected_service.service.inclusions_list = [inclusion.strip() for inclusion in inclusions.split(',')]
+            else:
+                selected_service.service.inclusions_list = []
+    context = {
+        'customer': customer,
+        'events': events
+    }
+
+    return render(request, 'base/customer/added_service.html', context)
+
 
 
 # CUSTOMER ACCOUNT VIEWS
@@ -277,3 +299,43 @@ def remove_service_from_event(request,  event_service_id):
         return JsonResponse({'message': str(e)}, status=500)
     
     
+
+
+
+def providers(request):
+    providers = ServiceProvider.objects.annotate(service_count=Count('services')).all()
+
+
+
+    context = {
+        'providers': providers
+    }
+    return render(request, 'base/providers.html', context)
+
+from django.utils import timezone
+def add_comment_post(request):
+    if request.method == 'POST':
+        post_id = request.POST.get('post_id')
+        comment_content = request.POST.get('comment')
+        
+        post = get_object_or_404(ServicePost, id=post_id)
+
+        # Create a new Comment instance
+        comment = Comment(
+            post=post,
+            author=request.user,
+            content=comment_content
+        )
+        comment.save()
+
+        # Prepare response data
+        response_data = {
+            'message': 'Comment added successfully',
+            'author': f"{comment.author.first_name} {comment.author.last_name}",
+            'content': comment.content,
+            'created_at': timezone.localtime(comment.created_at).strftime('%Y-%m-%d %H:%M:%S')  # Format the date if needed
+        }
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

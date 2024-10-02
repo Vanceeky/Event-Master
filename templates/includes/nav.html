@@ -27,8 +27,7 @@
                     <a class="nav-link nav-link-icon me-2"
                         href="/">
                         <i class="fa fa-wrench me-1"></i>
-                        <p class="d-inline text-sm z-index-1 font-weight-bold" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Star us on Github">
+                        <p class="d-inline text-sm z-index-1 font-weight-bold">
                             Home
                         </p>
                     </a>
@@ -38,8 +37,7 @@
                     <a class="nav-link nav-link-icon me-2"
                         href="{% url 'home_services' %}">
                         <i class="fa fa-wrench me-1"></i>
-                        <p class="d-inline text-sm z-index-1 font-weight-bold" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Star us on Github">
+                        <p class="d-inline text-sm z-index-1 font-weight-bold">
                             Services
                         </p>
                     </a>
@@ -49,10 +47,9 @@
 
                 <li class="nav-item dropdown dropdown-hover mx-2">
                     <a class="nav-link nav-link-icon me-2"
-                        href="#" target="_blank">
+                        href="{% url 'providers' %}">
                         <i class="fa fa-info me-1"></i>
-                        <p class="d-inline text-sm z-index-1 font-weight-bold" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Star us on Github">
+                        <p class="d-inline text-sm z-index-1 font-weight-bold">
                             Providers
                         </p>
                     </a>
@@ -62,8 +59,7 @@
                     <a class="nav-link nav-link-icon me-2"
                         href="#" target="_blank">
                         <i class="fa fa-info me-1"></i>
-                        <p class="d-inline text-sm z-index-1 font-weight-bold" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Star us on Github">
+                        <p class="d-inline text-sm z-index-1 font-weight-bold">
                             About Us
                         </p>
                     </a>
@@ -72,13 +68,23 @@
 
                 {% if request.user.is_authenticated %}
 
+                            <li class="nav-item  ms-lg-auto  mx-2">
+                                <a class="nav-link ps-2 cursor-pointer align-items-center"
+                                    href="{% url 'inbox' %}" aria-expanded="false">
+                                   <i class="fa fa-message"></i> Inbox
+                                </a>
+
+                            </li>
                             {% for group in request.user.groups.all %}
                                 {% if group.name == 'customer' %}
 
-                                    <li class="nav-item dropdown dropdown-hover ms-lg-auto  mx-2">
-                                        <a class="nav-link ps-2  cursor-pointer align-items-center"
-                                            href="{% url 'inbox' %}" aria-expanded="false">
-                                            Inbox
+
+                                    <li class="nav-item dropdown dropdown-hover mx-2">
+                                        <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center"
+                                            href="{% url 'added-service-page' %}"  aria-expanded="false">
+
+                                            <i class="fa fa-shopping-cart me-2" aria-hidden="true"></i>
+                                            Service
                                         </a>
 
                                     </li>
@@ -180,6 +186,8 @@
 
                                 {% elif group.name == 'provider' %}
                                     {% if request.user.id == provider.user.id %}
+
+
 
                                     <li class="nav-item dropdown ms-lg-auto dropdown-hover mx-2">
                                         <a class="nav-link ps-2 text-uppercase d-flex justify-content-between cursor-pointer align-items-center"

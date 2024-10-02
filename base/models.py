@@ -117,6 +117,7 @@ class Event(models.Model):
     
     def __str__(self):
         return self.title
+    
 
 class SelectedService(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='selected_services')

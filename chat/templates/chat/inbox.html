@@ -1,0 +1,273 @@
+{% extends 'base/layout.html' %}
+
+{% block title %} Inbox {% endblock %}
+
+{% block stylesheet %}
+<style>
+    /* Basic styling for the chat container */
+    #chat_messages {
+        max-height: 400px; /* Adjust height as needed */
+        overflow-y: auto; /* Enable vertical scrolling */
+        overflow-x: hidden; /* Disable horizontal scrolling */
+        scrollbar-width: thin; /* For Firefox */
+        scrollbar-color: #888 #f1f1f1; /* For Firefox */
+    }
+    
+    /* For WebKit browsers (Chrome, Safari) */
+    #chat_messages::-webkit-scrollbar {
+        width: 8px; /* Width of the scrollbar */
+    }
+    
+    #chat_messages::-webkit-scrollbar-track {
+        background: #f1f1f1; /* Background of the scrollbar track */
+    }
+    
+    #chat_messages::-webkit-scrollbar-thumb {
+        background: #888; /* Color of the scrollbar thumb */
+        border-radius: 10px; /* Rounded corners for the thumb */
+    }
+    
+    #chat_messages::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Color of the thumb on hover */
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<section class="pt-3 pb-4">
+    <div class="p-3 shadow-blur">
+        <div class="container">
+          <div class="page-header min-height-150 border-radius-xl mt-4" style="
+                background-image: url('/static/assets/img/curved-images/curved.jpg');
+                background-position-y: 50%;
+              "></div>
+          <div class="mx-4 mt-n6 overflow-hidden">
+            <div class="-fluid py-4">
+                <div class="row">
+                   <div class="col-lg-4 col-md-5 col-12">
+                      <div class="card blur shadow-blur max-height-vh-70 overflow-auto overflow-x-hidden mb-5 mb-lg-0">
+                         <div class="card-header p-3">
+                            <h6>Inbox</h6>
+                            <input type="email" class="form-control" placeholder="Search Contact" aria-label="Email" onfocus="focused(this)" onfocusout="defocused(this)">
+                         </div>
+                             <div class="card-body p-2 chat-groups">
+                                {% for info in groups_info %}
+                                    <div class="group">
+                                        {% for member in info.other_members %}
+                                        <a href="{% url 'chatroom' info.group.group_name%}" 
+                                
+                                            class="d-flex p-2 member" 
+                                            data-group-id="{{ info.group.id }}" 
+                                            data-group-name="{{ info.group.group_name }}">
+                                                <img alt="Image" src="/static/images/default-avatar.png" class="avatar shadow">
+                                                <div class="ms-3">
+                                                    {% for member in info.other_members %}
+                                                    <h6 class="mb-0 text-capitalize">{{ member.first_name }} {{ member.last_name }}</h6>
+                                                    {% endfor %}
+                                                    <p class="text-muted text-xs mb-2">{{ info.last_message }}</p>
+                                                </div>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% empty %}
+                                    <li>No private chat found.</li>
+                                {% endfor %}
+                            </div>
+                        
+                      </div>
+                   </div>
+                   <div class="col-lg-8 col-md-7 col-12">
+                      <div class="card blur shadow-blur max-height-vh-70" id="chat_container">
+                         <div class="card-header shadow-lg">
+                            <div class="row">
+                               <div class="col-lg-10 col-8">
+                                  <div class="d-flex align-items-center">
+                                     <div class="ms-3">
+                                        Start Conversation
+                                     </div>
+                                  </div>
+                               </div>
+
+                            </div>
+
+                         </div>
+
+                      </div>
+                   </div>
+                </div>
+
+
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+</section>
+
+
+
+{% endblock %}
+
+
+
+
+{% block js %}
+
+<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
+
+
+
+    
+
+
+<!--
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/api/chat-groups/')
+            .then(response => response.json())
+            .then(data => {
+                const chatContainer = document.querySelector('.card-body.p-2');
+                chatContainer.innerHTML = ''; // Clear existing content
+
+                data.forEach(chat => {
+                    const membersNames = chat.members.join(', '); // Join members' names
+                    const chatGroupLink = document.createElement('a');
+                    chatGroupLink.href = 'javascript:void(0);';
+                    chatGroupLink.className = 'd-block p-2';
+                    chatGroupLink.dataset.groupId = chat.id; // Store group ID
+                    chatGroupLink.dataset.groupName = chat.group_name; // Store group name
+                    chatGroupLink.innerHTML = `
+                        <div class="d-flex p-2">
+                            <img alt="Image" src="../../assets/img/team-1.jpg" class="avatar shadow">
+                            <div class="ms-3">
+                                <h6 class="mb-0">${membersNames}</h6>
+                                <p class="text-muted text-xs mb-2">${chat.last_message}</p>
+                            </div>
+                        </div>
+                    `;
+                    chatContainer.appendChild(chatGroupLink);
+
+                    // Add click event listener
+                    chatGroupLink.addEventListener('click', function() {
+                        const groupId = this.dataset.groupId;
+                        const groupName = this.dataset.groupName;
+
+                        fetch(`/api/chat-groups/${groupId}/messages/`)
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network response was not ok');
+                                return response.text();
+                            })
+                            .then(data => {
+                                document.getElementById('chat_messages').innerHTML = data;
+                                window.history.pushState({}, '', `/chat/room/${groupName}/`);
+                            })
+                            .catch(error => console.error('Error fetching messages:', error));
+                    });
+                });
+            })
+            .catch(error => console.error('Error fetching chat groups:', error));
+    });
+</script>
+-->
+
+
+
+
+<script>
+
+function scrollToBottom() {
+    const container = document.getElementById('chat_messages')
+    container.scrollTop = container.scrollHeight;
+}
+
+scrollToBottom()
+
+</script>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listener for group selection
+        document.querySelectorAll('.member').forEach(function(memberElement) {
+            memberElement.addEventListener('click', function() {
+                var groupId = this.getAttribute('data-group-id');
+                var groupName = this.getAttribute('data-group-name');
+                // Update the URL without reloading
+                var newUrl = '/chat/room/' + groupName + '/';
+                window.history.pushState({ path: newUrl }, '', newUrl);
+                
+                // Fetch chat messages for the selected group
+                fetch('/chat/messages/' + groupId + '/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                            return;
+                        }
+                        
+                        // Clear the chat messages container
+                        var chatMessagesContainer = document.getElementById('chat_messages');
+                        chatMessagesContainer.innerHTML = '';
+    
+                        // Append the fetched messages
+                        data.messages.forEach(function(message) {
+                            var messageHtml = '';
+                            if (message.is_author) {
+                                messageHtml = `
+                                    <div class="row justify-content-end text-right mb-4">
+                                        <div class="col-auto">
+                                            <div class="card bg-gray-200">
+                                                <div class="card-body py-2 px-3">
+                                                    <p class="mb-1">
+                                                        ${message.body}<br>
+                                                    </p>
+                                                    <div class="d-flex align-items-center justify-content-end text-sm opacity-6">
+                                                        <i class="ni ni-check-bold text-sm me-1"></i>
+                                                        <small>${message.created_at}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                messageHtml = `
+                                    <div class="row justify-content-start mb-4">
+                                        <div class="col-auto">
+                                            <div class="card">
+                                                <div class="card-body py-2 px-3">
+                                                    <p class="mb-1">
+                                                        ${message.body}
+                                                    </p>
+                                                    <div class="d-flex align-items-center text-sm opacity-6">
+                                                        <i class="ni ni-check-bold text-sm me-1"></i>
+                                                        <small>${message.created_at}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+    
+                            chatMessagesContainer.innerHTML += messageHtml;
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chat messages:', error);
+                    });
+            });
+        });
+    });
+</script>
+    
+
+
+
+{% endblock %}

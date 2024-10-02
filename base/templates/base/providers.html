@@ -1,0 +1,99 @@
+{% extends 'base/layout.html' %}
+
+{% block title %} Service Providers {% endblock %}
+
+{% block stylesheet %}
+<style>
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<!-- -------- START HEADER 8 w/ two background colors ------- -->
+<header class="header-rounded-images">
+    <div class="page-header min-vh-90">
+      <img class="position-absolute fixed-top ms-auto w-50 h-100 z-index-0 d-none d-sm-none d-md-block border-radius-section border-top-end-radius-0 border-top-start-radius-0 border-bottom-end-radius-0" src="/static/assets/img/office-dark.jpg" alt="image" loading="lazy">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-7 d-flex">
+            <div class="card card-body blur text-md-start text-center px-sm-5 shadow-lg mt-sm-5 py-sm-5">
+              <h2 class="text-dark mb-4">Service Providers</h2>
+  
+              <p class="lead text-dark pe-md-5 me-md-5">
+                Explore top-notch experts offering catering, photography, MC Services, and more to make your event unforgettable.
+              </p>
+              <div class="buttons">
+                <button type="button" class="btn bg-gradient-info mt-4">Join us now</button>
+                <a href="#explore" type="button" class="btn btn-outline-secondary mt-4 ms-2">Explore</a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</header>
+  <!-- -------- END HEADER 9 w/ two background colors ------- -->
+
+  <section class="py-5 bg-gray-200" id="explore">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 me-auto text-start">
+            <br>
+            <br>
+          <h3>Service Providers</h3>
+        </div>
+      </div>
+      <div class="row mt-lg-4 mt-2">
+        {% for sp in providers %}
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+            <div class="card-body p-3">
+              <div class="d-flex">
+                <div class="avatar avatar-xl border-radius-md p-2">
+                  <img src="{{ sp.logo.url }}">
+                </div>
+                <div class="ms-3 my-auto">
+                  
+                  <a href="{% url 'service-provider' sp.id %}"><h6>{{ sp.name }}</h6></a>
+
+                </div>
+
+              </div>
+              <p class="text-sm mt-3">{{ sp.desc }}</p>
+              <hr class="horizontal dark">
+              <div class="row">
+                <div class="col-6">
+                  <h6 class="text-sm mb-0">{{ sp.service_count }}</h6>
+                  <p class="text-secondary text-sm font-weight-bold mb-0">Offered Services</p>
+                </div>
+                <div class="col-6 text-end">
+
+                  <a href="{% url 'start-chat' sp.user %}" class="btn btn-sm btn-outline-info mt-2 p-2"><i class="fa fa-message me-2" style="font-size: 12px"></i>Chat Now</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      {% endfor %}
+  
+      </div>
+    </div>
+</section>
+
+
+
+{% endblock %}
+
+
+{% block js %}
+
+
+
+
+{% endblock %}

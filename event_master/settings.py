@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['192.168.68.101', 'localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'jazzmin',
     'ckeditor',
 
@@ -43,6 +44,9 @@ INSTALLED_APPS = [
     
     'authentication.apps.AuthenticationConfig',
     'base.apps.BaseConfig',
+    'chat.apps.ChatConfig',
+    'django_htmx'
+
 ]
 
 MIDDLEWARE = [
@@ -53,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'event_master.urls'
@@ -75,7 +80,15 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'event_master.wsgi.application'
+ASGI_APPLICATION = 'event_master.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+
+    },
+}
+
 
 
 # Database

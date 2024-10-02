@@ -3,6 +3,22 @@
 {% block title %} Services {% endblock %}
 
 
+{% block stylesheet %}
+
+<style>
+  #service_cards {
+    transition: transform 0.3s ease;
+}
+
+#service_cards:hover {
+    transform: scale(1.01);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+</style>
+
+{% endblock %}
+
 {% block content %}
 
 
@@ -46,101 +62,91 @@
 
       <div class="row">
         <div class="col-lg-12 z-index-2 border-radius-xl mt-n10 mx-auto py-3 px-3 blur shadow-blur">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-
-                <div class="">
-                    <div class="input-group">
-                        <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
-                        <input type="text" class="form-control" placeholder="Search here..." style="width:372px">
-                    </div>
-                    
 
 
+          <div class="row">
+            <div class="col-lg-3">
+
+              <h5 class="text-uppercase">Search Filter: </h5>
+              <hr class="dark horizontal">
+              <div class="input-group">
+                <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" placeholder="Search here...">
+              </div>
+
+              <div class="form-group mt-2">
+                <label for="exampleFormControlInput1">Price Range: </label>
+                <div class="d-flex align-items-center">
+
+                  <input type="number" class="form-control" id="exampleFormControlInput1" placeholder="₱ MIN">
+                  
+                    <label class="mx-2 my-2"> TO </label>
+                  <input type="number" class="form-control" id="exampleFormControlInput1" placeholder="₱ MAX">
                 </div>
+              </div>
 
+              <div class="form-group mt-2">
+                <label for="exampleFormControlSelect1">Select Category: </label>
+                <select class="form-control" id="exampleFormControlSelect1">
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                </select>
+              </div>
 
-
-                <div class="">
-                    <div class="d-flex align-items-center">
-                      
-                      <label for="exampleFormControlSelect1">Category: </label>
-                      <div class="form-group me-2 ms-2">
-                        <select class="form-control" id="exampleFormControlSelect1">
-                          <option>...................</option>
-                          <option>Photographer</option>
-                          <option>Videographer</option>
-                          <option>Catering</option>
-                          <option>MC</option>
-                          <option>Venue Rental</option>
-                          <option>Others</option>
-                        </select>
-                      </div>
-
-                        <label for="example-number-input" class="form-control-label mx-2">Price Range: </label>
-                        <div class="form-group">
-                            <input class="form-control" type="number" placeholder="₱ MIN" id="example-number-input" style="width:100px">
-                        </div>
-                        
-                        <label for="example-number-input" class="form-control-label mx-2"> TO </label>
-                        <div class="form-group">
-                            <input class="form-control" type="number" placeholder="₱ MAX"  id="example-number-input" style="width:100px">
-                        </div>
-
-                        <button class="ms-4 btn btn-sm bg-gradient-info">Apply Filter</button>
-                    </div>
-                </div>
 
             </div>
-
-            <div class="row">
+            <div class="col-lg-9">
+              <div class="row">
                 {% for service in services %}
-                <div class="col-md-4">
 
-                    <div class="card mb-2">
-                        <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
-                          <a href="javascript:;" class="d-block">
-                            <img src="/static/assets/img/anastasia.jpg" class="img-fluid border-radius-lg">
-                          </a>
-                        </div>
-                      
-                        <div class="card-body pt-2">
-                            
-                            <div class="d-flex align-items-center justify-content-between">
-
-                                <div class="d-flex">
-                                  <h6 class="text-sm mb-0"><i class="fa fa-star"></i></h6>
-                                  <h6 class="text-sm mb-0"><i class="fa fa-star"></i></h6>
-                                  <h6 class="text-sm mb-0"><i class="fa fa-star"></i></h6>
-                                </div>
-                                
-                                <button type="button" class="btn btn-outline-info btn-sm mb-0 p-2">₱{{ service.price }}</button>
-                            </div>
-
-                          <a href="{% url 'service-details' service.id %}" type="button" class="text-gradient text-info card-title h5 d-block"  data-bs-toggle="tooltip" data-bs-placement="left" title="View Service">
-                            {{ service.name }}
-                          </a>
-                          <p class="card-description mb-4">
-                            {{ service.description|truncatewords:10 }}
-                          </p>
-                          <div class="author d-flex justify-content-between align-items-center">
-                            <div class="name">
-                              
-                            <img src="{{ service.provider.logo.url }}" alt="..." class="avatar shadow">
-                              <span class="ms-2"><a href="{% url 'service-provider' service.provider.id %}">{{ service.provider }}</a></span>
-
-                            </div>
-
-                            <small>{{service.category }}</small>
-
+                  <div class="col-md-4 col-sm-6 col-12 mb-4"> <!-- Responsive columns -->
+                      <div class="card" id="service_cards">
+                          <div class="card-header p-3 pb-0">
+                              <div class="row">
+                                  <div class="col-8 d-flex">
+                                      <div>
+                                          <img src="{{ service.provider.logo.url }}" class="avatar avatar-sm me-2" alt="avatar image">
+                                      </div>
+                                      <div class="d-flex flex-column justify-content-center">
+                                          <a href="{% url 'service-provider' service.provider.id %}">
+                                              <h6 class="mb-0 text-sm">{{ service.provider.name }}</h6>
+                                          </a>
+                                          <p class="text-xs">
+                                              <i class="fa fa-star fa-2xs"></i>
+                                              <i class="fa fa-star fa-2xs"></i>
+                                              <i class="fa fa-star fa-2xs"></i>
+                                              <i class="fa fa-star fa-2xs"></i>
+                                              <i class="fa fa-star fa-2xs"></i>
+                                          </p>
+                                      </div>
+                                  </div>
+                                  <div class="col-4">
+                                      <span class="badge bg-gradient-info ms-auto float-end">{{ service.category }}</span>
+                                  </div>
+                              </div>
                           </div>
-                        </div>
-                    </div>
-            
-                </div>
+                          <div class="card-body p-3 pt-1">
+                              <a href="{% url 'service-details' service.id %}">
+                                  <h6 class="text-gradient text-info cursor-pointer">{{ service.name }}</h6>
+                              </a>
+                              <p class="text-sm">{{ service.description|truncatewords:10 }}</p>
+                              <div class="d-flex justify-content-center bg-gray-100 border-radius-lg p-3">
+                                  <h4 class="my-auto text-center">
+                                      <span class="text-center text-secondary text-sm me-1">₱</span>{{ service.price|floatformat:0 }}<span class="text-secondary text-sm ms-1">/ Base Price </span>
+                                  </h4>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
                 {% endfor %}
-
+              </div>
             </div>
-
+          </div>
+        
           
         </div>
       </div>
