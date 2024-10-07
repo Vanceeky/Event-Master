@@ -39,13 +39,26 @@
                                     <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-lg-start px-2 py-3" aria-labelledby="dropdownMarketingCard">
-                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Edit Team</a></li>
-                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Add Member</a></li>
-                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">See Details</a></li>
                                         <li>
-                                        <hr class="dropdown-divider">
+                                            <a class="dropdown-item border-radius-md" 
+                                               href="javascript:;" 
+                                               data-bs-toggle="modal" 
+                                               data-event-id="{{ event.id }}"
+                                               data-event-title="{{ event.title }}"
+                                               data-event-date="{{ event.event_date|date:'Y-m-d' }}"
+                                               data-event-location="{{ event.location }}"
+                                               data-event-budget="{{ event.budget }}"
+                                               data-event-description="{{ event.description }}"
+                                               data-bs-target="#update-event">Update Event</a>
                                         </li>
-                                        <li><a class="dropdown-item border-radius-md text-danger" href="javascript:;">Remove Team</a></li>
+                                        
+                                        <li>
+                                            <a class="dropdown-item border-radius-md text-danger remove_event" 
+                                               href="javascript:;" 
+                                               data-event-id="{{ event.id }}">Remove Event</a>
+                                        </li>
+                                   
+
                                     </ul>
                                 </div>
                             </div>
@@ -75,9 +88,22 @@
                                     <span class="ms-auto" id="estimated_bill_{{ event.id }}">₱ 0.00</span>
                                 </li>
 
-                                <li id="budget_note_{{ event.id }}" class="mt-4 d-none">
-                                    <p class="text-danger">Note: The estimated bill exceeds the budget.</p>
+                                <li class="mt-3" id="budget_note_{{ event.id }}">
+                                    <p  class="text-danger mb-2 mb-md-0">
+                                        Note: The estimated bill exceeds the budget.
+                                    </p>
+
+                                    {% if messages %}
+                                        {% for msg in messages %}
+                                            <p  class="text-info mb-2 mb-md-0">
+                                                {{ msg }}
+                                            </p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </li>
+
+
+
 
                             </ul>
                         </div>
@@ -85,56 +111,79 @@
                     <div class="col-md-8">
                         <div class="card-body pb-0">
                             {% if event.selected_services.all %}
-                            <div class="table-responsive">
-                            <table class="table align-items-center mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">
-                                        Service
-                                        </th>
-                                        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Price</th>
-                                        
-                                        <th class="text-uppercase text-center text-secondary text-sm font-weight-bolder opacity-7 ps-2">Category</th>
-                                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Status</th>
-                                        <th class="text-secondary opacity-7"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for selected_service in event.selected_services.all%}
-                                    <tr>
-                                        <td>
-                                        <div class="d-flex align-items-center px-2 py-1">
-                                            <div class="form-check text-center">
-                                                <input class="form-check-input" type="checkbox" value="" id="">
+                                <div class="table-responsive">
+                                    <form method="POST" action="{% url 'submit_booking_request' event.id %}" class="book-service-form">
+                                        {% csrf_token %}
+                                            <table class="table align-items-center mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">
+                                                        Service
+                                                        </th>
+                                                        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7 ps-2">Price</th>
+                                                        
+                                                        <th class="text-uppercase text-center text-secondary text-sm font-weight-bolder opacity-7 ps-2">Category</th>
+                                                        <th class="text-center text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Status</th>
+                                                        <th class="text-secondary opacity-7"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for selected_service in event.selected_services.all%}
+
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex align-items-center px-2 py-1">
+                                                                    <div class="form-check text-center">
+                                                                        
+                                                                    {% if selected_service.status == 'Pending' %}
+
+                                                                        <input class="form-check-input" type="checkbox" name="selected_services" value="{{ selected_service.id }}" checked disabled readonly>
+
+                                                                        {% else %}
+                                                                        
+                                                                        <input class="form-check-input" type="checkbox" name="selected_services" value="{{ selected_service.id }}" checked >
+
+                                                                    {% endif %}
+                                                                    </div>
+                                                                    
+                                                                    <div>
+                                                                        <img src="{{ selected_service.service.provider.logo.url }}" class="avatar avatar-sm me-3">
+                                                                    </div>
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-md"><a href="{% url 'service-details' selected_service.service.id %}">{{ selected_service.service.name }}</a></h6>
+                                                                        <p class="text-md text-secondary mb-0"><a href="{% url 'service-provider' selected_service.service.provider.id %}">{{ selected_service.service.provider }} |</a> <a href="{% url 'start-chat' selected_service.service.provider.user %}" class=" text-xs text-info"><i class="fa fa-message"></i> Chat</a></p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                            <p class="text-md font-weight-bold mb-0 service-price"> ₱ {{ selected_service.service.price|floatformat:0 }}</p>
+                                                            </td>
+                                                            <td class="align-middle text-center text-md">
+                                                                <span class="badge badge-pill bg-gradient-info">{{ selected_service.service.category }}</span>
+                                                            </td>
+                                                            <td class="align-middle text-center text-md">
+                                                            <span class="badge badge-pill bg-gradient-info">{{ selected_service.status }}</span>
+                                                            </td>
+                                                            <td class="align-middle">
+                                                            <a href="{% url 'remove_service_from_event' selected_service.id %}" class="text-danger remove_service" aria-expanded="false" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Service">
+                                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                                            </a>
+                                                            </td>
+                                                        </tr>
+
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+
+                                            <hr class="dark horizontal">
+                                            <div class="text-end me-3">
+                                                  
+                                           
+
+                                            <button type="submit" class="btn btn-outline-info submit_request">Submit Booking Request</button>
                                             </div>
-                                            <div>
-                                                <img src="{{ selected_service.service.provider.logo.url }}" class="avatar avatar-sm me-3">
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-md"><a href="{% url 'service-details' selected_service.service.id %}">{{ selected_service.service.name }}</a></h6>
-                                                <p class="text-md text-secondary mb-0"><a href="{% url 'service-provider' selected_service.service.provider.id %}">{{ selected_service.service.provider }}</a></p>
-                                            </div>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <p class="text-md font-weight-bold mb-0 service-price"> ₱ {{ selected_service.service.price|floatformat:0 }}</p>
-                                        </td>
-                                        <td class="align-middle text-center text-md">
-                                            <span class="badge badge-pill bg-gradient-info">{{ selected_service.service.category }}</span>
-                                        </td>
-                                        <td class="align-middle text-center text-md">
-                                        <span class="badge badge-pill bg-gradient-info">{{ selected_service.status }}</span>
-                                        </td>
-                                        <td class="align-middle">
-                                        <a href="{% url 'remove_service_from_event' selected_service.id %}" class="text-danger" aria-expanded="false" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Service">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                        </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            </div>
+                                    </form>
+                                </div>
                             {% else %}
                             <li>No services associated with this event.</li>
                             {% endif %}
@@ -143,7 +192,8 @@
                 </div>
 
                 <div class="card-footer border-top">
-                    asd
+
+                    
                 </div>
                 
                 </div>
@@ -165,10 +215,406 @@
 
 
 
+<div class="col-md-4">
+    <div class="modal fade" id="modal-book-service" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+      <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title" id="modal-title-notification">Confirm Submission</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="py-3 text-center">
+              <i class="ni ni-bell-55 ni-3x"></i>
+              <p>Are you sure you want to submit your event and selected services for review? Once submitted, the service provider will be notified to either accept or reject the booking based on your conversation.</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-white">Yes, Submit Request</button>
+            <button type="button" class="btn bg-danger text-white ml-auto" data-bs-dismiss="modal">No, Go Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<div class="col-md-4">
+    <div class="modal fade" id="update-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+      <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title" id="modal-title-notification">Update event:</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <form method="POST" id="update-event-form" action="{% url 'update-event' %}">
+            {% csrf_token %}
+  
+            <input type="hidden" value="" name="event_id">
+  
+            <div class="modal-body">
+  
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Event Name:</label>
+                <input type="text"  name="event_name" required class="form-control" id="" placeholder="">
+              </div>
+  
+
+
+                <div class="form-group">
+                    <label for="event-date">Date:</label>
+                    <input type="date" name="date" required class="form-control" id="event-date" placeholder="">
+                </div>
+
+  
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Event Location:</label>
+                <input type="text"  name="location" required class="form-control" id="" placeholder="">
+              </div>
+  
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Budget:</label>
+                <input type="number"  name="budget" required class="form-control" id="" placeholder="">
+              </div>
+  
+  
+              <div class="form-group">
+                <label for="exampleFormControlTextarea1">Event Description:</label>
+                <textarea class="form-control" name="description" id="" rows="3"></textarea>
+              </div>
+  
+  
+  
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-white">Ok, Got it</button>
+              <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
 {% endblock %}
 
 
 {% block js %}
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach click event listener to all remove buttons
+        document.querySelectorAll('.remove_event').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                // Get the event ID from a data attribute (you can set this in the HTML)
+                const eventId = event.target.getAttribute('data-event-id');
+
+                // Show SweetAlert confirmation
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This action cannot be undone!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Proceed with the deletion
+                        fetch("{% url 'remove-event' %}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: new URLSearchParams({ 'event_id': eventId })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.fire({
+                                title: 'Removed!',
+                                text: data.message,
+                                icon: 'success',
+                                timer: 500,  // Set timer duration (2000ms = 2 seconds)
+                                timerProgressBar: true,  // Show the progress bar
+                                showConfirmButton: false  // Remove the OK button
+                            }).then(() => {
+                                window.location.href = '/customer/added-service/';
+                            });
+                        })
+                        .catch((error) => {
+                            Swal.fire(
+                                'Error!',
+                                'There was a problem deleting the event.',
+                                'error'
+                            );
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('update-event-form');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(form); // Get the form data
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}', // Include CSRF token
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Show SweetAlert with a timer and progress
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 500,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        willClose: () => {
+                            // Reload the page after the timer ends
+                            location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to update event. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'Close',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'Close',
+                });
+            });
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const updateEventModal = document.getElementById('update-event');
+
+        updateEventModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget; // Button that triggered the modal
+
+            // Extract the data attributes from the button
+            const eventId = button.getAttribute('data-event-id');
+            const eventTitle = button.getAttribute('data-event-title');
+            const eventDate = button.getAttribute('data-event-date');
+            const eventLocation = button.getAttribute('data-event-location');
+            const eventBudget = button.getAttribute('data-event-budget');
+            const eventDescription = button.getAttribute('data-event-description');
+
+            // Update the modal's content
+            updateEventModal.querySelector('input[name="event_id"]').value = eventId;
+            updateEventModal.querySelector('input[name="event_name"]').value = eventTitle;
+            updateEventModal.querySelector('input[name="date"]').value = eventDate;
+            updateEventModal.querySelector('input[name="location"]').value = eventLocation;
+            updateEventModal.querySelector('input[name="budget"]').value = eventBudget;
+            updateEventModal.querySelector('textarea[name="description"]').value = eventDescription;
+        });
+    });
+</script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all "Remove Service" links
+        document.querySelectorAll('.remove_service').forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();  // Prevent default link action
+
+                const url = this.getAttribute('href');  // Get the URL for the removal
+                const row = this.closest('tr');  // Get the row containing the service
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to remove this service from the event?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, remove it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Perform the AJAX request to remove the service
+                        fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message) {
+                                // Remove the row from the table
+                                row.remove();
+
+                                // Show success message with timer and progress bar
+                                Swal.fire({
+                                    title: 'Removed!',
+                                    text: data.message,
+                                    icon: 'success',
+                                    timer: 500,  // Set timer duration (2000ms = 2 seconds)
+                                    timerProgressBar: true,  // Show the progress bar
+                                    showConfirmButton: false  // Remove the OK button
+                                }).then(() => {
+                                    window.location.href = '/customer/added-service/';
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error!',
+                                'There was an issue removing the service.',
+                                'error'
+                            );
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all forms on the page
+        document.querySelectorAll('form').forEach(function(form) {
+            const checkboxes = form.querySelectorAll('input[name="selected_services"]');
+            const submitButton = form.querySelector('.submit_request');
+
+            // Function to check if any draft services are available (i.e., checkboxes that are not disabled)
+            function checkForDraftServices() {
+                let draftExists = false;
+                checkboxes.forEach((checkbox) => {
+                    if (!checkbox.disabled) {
+                        draftExists = true;
+                    }
+                });
+                submitButton.disabled = !draftExists;  // Disable the button if no draft services
+            }
+
+            // Call the function on page load for each form
+            checkForDraftServices();
+
+            // Optionally, add event listeners for any change on the checkboxes
+            checkboxes.forEach((checkbox) => {
+                checkbox.addEventListener('change', checkForDraftServices);  // Check again if the checkbox state changes
+            });
+        });
+    });
+</script>
+
+
+
+
+
+<script>
+// Select all forms on the page
+document.querySelectorAll('.book-service-form').forEach(function(form) {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent immediate form submission
+        
+        const formData = new FormData(form);  // Collect form data
+
+        // Show confirmation alert before submitting
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Once submitted, the service provider will be notified to either accept or reject the booking based on your conversation.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, submit it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If confirmed, submit the form using AJAX
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',  // Indicate AJAX request
+                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success alert after form submission
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Optionally redirect after success alert is closed
+                            window.location.href = "{% url 'added-service-page' %}";
+                        });
+                    } else {
+                        // Handle error case if form submission fails
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Something went wrong. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            }
+        });
+    });
+});
+
+</script>
+
+
 
 
 <script>
@@ -230,7 +676,7 @@
       
       calculateEstimatedBill();
     });
-  </script>
+</script>
 
   
 

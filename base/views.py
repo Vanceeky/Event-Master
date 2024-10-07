@@ -1,9 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from . models import *
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 
 from django.db.models import Count
+from django.utils import timezone
+from django.contrib import messages
+from django.core.mail import send_mail
+from chat.models import ChatGroup, GroupMessage
 
 
 def index(request):
@@ -35,16 +39,8 @@ def index(request):
 def inbox(request):
     return render(request, 'base/inbox.html')
 
-
-
-
-
-
-
-
 def dashboard(request):
     return render(request, 'base/admin/dashboard.html')
-
 
 
 
@@ -54,6 +50,7 @@ def dashboard(request):
 
 
 def service_provider(request, provider_id):
+    
     provider = get_object_or_404(ServiceProvider, id=provider_id) 
     
     services = Service.objects.filter(provider=provider)
@@ -256,6 +253,7 @@ def add_service_to_event(request):
         # Return a JSON response with an error message if something goes wrong
         return JsonResponse({'message': str(e)}, status=500)
     
+    
 
 def create_new_event(request):
     if request.method == 'POST':
@@ -298,8 +296,32 @@ def remove_service_from_event(request,  event_service_id):
     except Exception as e:
         return JsonResponse({'message': str(e)}, status=500)
     
-    
 
+def update_event(request):
+    if request.method == 'POST':
+        event_id = request.POST.get('event_id')
+        event = get_object_or_404(Event, id=event_id)
+        event.title = request.POST.get('event_name')
+        event.event_date = request.POST.get('date')
+        event.location = request.POST.get('location')
+        event.budget = request.POST.get('budget')
+        event.description = request.POST.get('description')
+        
+        event.save()
+
+        return JsonResponse({'message': 'Event updated successfully'})
+    
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
+def remove_event(request):
+    if request.method == 'POST':
+        event_id = request.POST.get('event_id')
+        event = get_object_or_404(Event, id=event_id)
+        event.delete()
+
+        return JsonResponse({'message': 'Event removed successfully'})
+
+    return JsonResponse({'message': 'Invalid request'}, status=400)
 
 
 def providers(request):
@@ -312,7 +334,7 @@ def providers(request):
     }
     return render(request, 'base/providers.html', context)
 
-from django.utils import timezone
+
 def add_comment_post(request):
     if request.method == 'POST':
         post_id = request.POST.get('post_id')
@@ -339,3 +361,48 @@ def add_comment_post(request):
         return JsonResponse(response_data)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+
+
+
+
+def submit_booking_request(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    if request.method == "POST":
+        selected_service_ids = request.POST.getlist('selected_services') 
+        selected_services = SelectedService.objects.filter(id__in=selected_service_ids)
+
+        for selected_service in selected_services:
+            selected_service.status = 'Pending'
+            selected_service.save()
+
+      
+            chat_group = ChatGroup.objects.filter(
+                is_private=True,
+                members=request.user
+            ).filter(members=selected_service.service.provider.user).first()
+
+            if not chat_group:
+                chat_group = ChatGroup.objects.create(is_private=True)
+                chat_group.members.add(request.user, selected_service.service.provider.user)
+
+        
+            GroupMessage.objects.create(
+                group=chat_group,
+                author=request.user,
+                body=(f"Hi {selected_service.service.provider.name}, I've just added your service '{selected_service.service.name}' "
+                      f"for my event '{event.title}' on {event.event_date} at {event.location}. "
+                      "Could you please take a look and confirm if everything is okay? Thank you!")
+            )
+
+  
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Your booking request has been submitted, and the service providers have been notified through chat.'})
+
+        messages.success(request, "Your booking request has been submitted, and the service providers have been notified through chat.")
+        return redirect('added-service-page')
+
+    return redirect('added-service-page')

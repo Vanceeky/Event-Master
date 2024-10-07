@@ -63,7 +63,7 @@ def login_customer(request):
       
             if user.groups.filter(name='customer').exists():
                 login(request, user)
-                return redirect('customer-account') 
+                return redirect('index') 
             else:
                 messages.error(request, 'You do not have customer access.')
                 return redirect('customer-login')  

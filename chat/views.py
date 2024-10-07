@@ -54,6 +54,7 @@ def chat_view(request, chatroom_name = 'public-chat'):
 @login_required
 def inbox(request):
     user = request.user
+    
     # Fetch all chat groups where the user is a member
     chat_groups = ChatGroup.objects.filter(is_private=True, members=user)
 
@@ -64,9 +65,10 @@ def inbox(request):
         other_members = group.members.exclude(id=user.id)  # Other members in the group
         
         if last_message and last_message.author == user:
-            last_message_text = f"You: {last_message.body}"
+            last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
         else:
-            last_message_text = last_message.body if last_message else "No messages yet"
+            last_message_text = (last_message.body[:25] + "...") if last_message and len(last_message.body) > 25 else (last_message.body if last_message else "No messages yet")
+
 
         groups_info.append({
             'group': group,
@@ -124,9 +126,9 @@ def chat_view(request, chatroom_name='public-chat'):
         other_members = group.members.exclude(id=user.id)  # Other members in the group
         
         if last_message and last_message.author == user:
-            last_message_text = f"You: {last_message.body}"
+            last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
         else:
-            last_message_text = last_message.body if last_message else "No messages yet"
+            last_message_text = (last_message.body[:25] + "...") if last_message and len(last_message.body) > 25 else (last_message.body if last_message else "No messages yet")
 
         groups_info.append({
             'group': group,

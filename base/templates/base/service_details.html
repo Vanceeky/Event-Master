@@ -315,9 +315,12 @@ if (window.innerWidth < 576) {
                       title: 'Success!',
                       text: data.message,
                       icon: 'success',
-                      confirmButtonText: 'OK'
+                      timer: 500,  // Set timer duration (2000ms = 2 seconds)
+                      timerProgressBar: true,  // Show the progress bar
+                      showConfirmButton: false  // Remove the OK button
+
                   }).then(() => {
-                      window.location.href = '/customer/account/';
+                      window.location.href = '/customer/added-service/';
                   });
               } else {
                   Swal.fire({

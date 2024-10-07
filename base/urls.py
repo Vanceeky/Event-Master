@@ -32,6 +32,8 @@ urlpatterns = [
     #CUSTOMER PATHS
     path('customer/account/', views.customer_account, name='customer-account'),
     path('create-new-event/', views.create_new_event, name='create-new-event'),
+    path('update-event/', views.update_event, name='update-event'),
+    path('remove-event/', views.remove_event, name='remove-event'),
     path('customer/added-service/', views.added_service_page, name='added-service-page'),
 
         # other URL patterns
@@ -43,6 +45,11 @@ urlpatterns = [
 
 
     path('comment-post/', views.add_comment_post, name='add_comment_post'),
+
+
+
+    path('submit-booking-request/<int:event_id>/', views.submit_booking_request, name='submit_booking_request'),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
