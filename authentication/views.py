@@ -177,7 +177,7 @@ def login_provider(request):
                 provider = ServiceProvider.objects.get(user=user)
 
 
-                return redirect('service-provider', provider_id=provider.id)  
+                return redirect('service-provider', request.user.id)  
             
             else:
                 messages.error(request, 'You do not have provider access.')

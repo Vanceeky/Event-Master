@@ -19,6 +19,7 @@ urlpatterns = [
     path('service-provider/<int:provider_id>/', views.service_provider, name='service-provider'),
     path('add-service/', views.create_service, name='create_service'),
     path('create-post/', views.create_post, name='create_post'),
+    path('bookings/', views.provider_bookings, name='provider-bookings'),
 
 
 
@@ -49,6 +50,8 @@ urlpatterns = [
 
 
     path('submit-booking-request/<int:event_id>/', views.submit_booking_request, name='submit_booking_request'),
+
+    path('inquire/', views.inquire_service, name="inquire_service")
 
 ]
 

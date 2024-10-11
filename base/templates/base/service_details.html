@@ -29,6 +29,27 @@
 }
 
 
+.splide__slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px; /* Default height for larger screens */
+}
+
+/* For medium-sized screens (tablets) */
+@media (max-width: 1024px) {
+    .splide__slide {
+        height: 250px; /* Adjust height for tablets */
+    }
+}
+
+/* For small screens (mobile devices) */
+@media (max-width: 768px) {
+    .splide__slide {
+        height: 200px; /* Adjust height for mobile devices */
+    }
+}
+
 </style>
 {% endblock %}
 
@@ -43,48 +64,62 @@
       <div class="container">
         <div class="page-header min-height-300 border-radius-xl mt-4" style="background-image: url('/static/assets/img/curved-images/curved11.jpg'); background-position-y: 50%;">
         </div>
-        <div class="card card-body blur mx-4 mt-n6 overflow-hidden">
+        <div class="card card-body blur mx-4 mt-n9 overflow-hidden">
             <div class="card-body">
-                <h5 class="mb-4">Service Details</h5>
+
                 <div class="row">
                     <div class="col-lg-6 col-md-12 text-center">
-                        <div class="tab-content mt-3" id="myTabContent">
-                            {% for image in images %}
-                            <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="image_id_{{ image.id }}" role="tabpanel" aria-labelledby="image_id_{{ image.id }}-tab">
-                                <div class="row">
-                                    <div class="col-12 mb-3">
-                                        <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}" style="height: auto; max-height: 300px;"/>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            {% if images %}
-                            {% for image in images %}
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link{% if forloop.first %} active{% endif %}" id="image_id_{{ image.id }}-tab" data-bs-toggle="tab" href="#image_id_{{ image.id }}" role="tab" aria-controls="image_id_{{ image.id }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                                    <img src="{{ image.image.url }}" alt="{{ image.description }}" style="width: auto; max-width: 50px; height: auto; max-height: 50px"/>
-                                </a>
-                            </li>
-                            {% endfor %}
-                            {% else %}
-                            <p>No image available</p>
-                            {% endif %}
-                        </ul>
-    
-                        <div class="d-flex mt-4 align-items-center">
-                            <img src="{{ service.provider.logo.url}}" class="avatar avatar-xl">
-                            <div class="ms-3">
-                                <h4 class="cursor-pointer">{{ service.provider.name }}</h4>
-                                <a href="{% url 'start-chat' service.provider.user %}" class="btn btn-outline-info" id="chatButton"><i class="fa fa-message me-2"></i>Chat Now</a>
-                                <!--<a href="javascript:void(0);" class="btn btn-outline-info" id="chatButton"><i class="fa fa-message me-2"></i>Chat Now</a>-->
-                                <a href="{% url 'service-provider' service.provider.id %}" class="btn bg-gradient-info"><i class="fa fa-shop me-2"></i>View Profile</a>
+                        {% if images %}
+                        <div class="splide">
+                            <div class="splide__track">
+                                <ul class="splide__list">
+                                    
+                                        {% for image in images %}
+                                            <li class="splide__slide">
+                                            <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}"
+                                            style="width: auto; height: 300px" />
+                                            </li>
+                                        {% endfor %}
+
+                                    <!-- Add more slides as needed -->
+                                </ul>
                             </div>
                         </div>
+                        {% else %}
+                            <p> No available image </p>
+
+                        {% endif %}
+
+                            
+                        <div class="row mt-4 align-items-center d-flex justify-content-center">
+                            <div class="col-lg-4 col-12">
+                                <button class="add-service-btn btn btn-outline-info w-100" type="button" data-bs-toggle="modal" data-bs-target="#add-service-event" data-service-id="{{service.id}}">Add to event</button>
+                            </div>
+                            <div class="col-lg-4 col-12">
+                                <button class="btn bg-gradient-info w-100" data-bs-toggle="modal" data-bs-target="#modal-message" type="button">Inquire</button>
+                            </div>
+                        </div>
+
                     </div>
     
                     <div class="col-lg-6 col-md-12 mx-auto">
+                        <div class="pb-0">
+                            <div class="row">
+                               <div class="col-8 d-flex">
+                                  <div>
+                                     <img src="{{ service.provider.logo.url }}" class="avatar avatar-sm me-2" alt="avatar image">
+                                  </div>
+                                  <div class="d-flex flex-column justify-content-center">
+                                     <h6 class="mb-0 text-sm"><a href="{% url 'service-provider' service.provider.id %}">{{ service.provider.name }}</a></h6>
+                                     <p class="text-xs">Service provider</p>
+                                  </div>
+                               </div>
+                               <div class="col-4">
+                                  <span class="badge bg-gradient-info ms-auto float-end">{{ service.category}}</span>
+                               </div>
+                            </div>
+                        </div>
+
                         <h3 class="mt-lg-0 mt-4">{{ service.name }}</h3>
                         <div class="rating">
                             <i class="fas fa-star" aria-hidden="true"></i>
@@ -104,6 +139,7 @@
                             {% endfor %}
                         </ul>
     
+                        <!--
                         <div class="row mt-4">
                             <div class="col-lg-6 col-12">
                                 <button class="add-service-btn btn btn-outline-info mb-2 w-100" type="button" data-bs-toggle="modal" data-bs-target="#add-service-event" data-service-id="{{service.id}}">Add to event</button>
@@ -112,6 +148,8 @@
                                 <button class="btn bg-gradient-info mb-0 w-100" type="button">Inquire</button>
                             </div>
                         </div>
+                        -->
+
                     </div>
                 </div>
             </div>
@@ -232,10 +270,62 @@
 </div>
 
 
+<!-- Modal -->
+<div class="modal fade" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">New message to @{{ service.provider.name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form method="POST" action="{% url 'inquire_service' %}">
+            {% csrf_token %}
+            <div class="modal-body">
+
+
+                <input type="hidden" name="provider" value="{{ service.provider.id }}">
+                <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">Service:</label>
+                    <input type="text" class="form-control" name="service" value="{{ service.name }}" id="service" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="message-text" class="col-form-label">Message:</label>
+                    <textarea class="form-control" name="message" rows="3" id="message-text">Hi, I'm interested in your {{ service.name }} service.
+                    </textarea>
+                </div>
+            
+            </div>
+            <div class="modal-footer">
+
+            <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn bg-gradient-info">Send message</button>
+
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 
 {% block js %}
+
+<script>
+    // Your JavaScript initialization code
+    var splide = new Splide('.splide', {
+        type: 'fade',
+        rewind: true,
+    });
+
+    splide.mount();
+</script>
+
+
+
 <!--
    <script>
    document.getElementById('chatButton').addEventListener('click', function() {

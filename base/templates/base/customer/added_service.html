@@ -15,11 +15,17 @@
               background-image: url('/static/assets/img/curved-images/curved.jpg');
               background-position-y: 50%;
             ">
+            
         </div>
 
 
-        <div class="card mx-4 mb-2 mt-n6 overflow-hidden">
-            
+        <div class="card mx-4 mb-2 mt-n9 overflow-hidden">
+           
+            <a type="button" data-bs-toggle="modal" data-bs-target="#create-event" class="card-header btn text-lg btn-secondary text-dark btn-icon mb-3 mb-sm-0">
+                <span class="btn-inner--icon"><i class="fa-solid fa-notes-medical"></i></span>
+                <span class="btn-inner--text">Create New Event</span>
+            </a>
+           
             {% for event in events %}
                 <div class="card mb-3 mt-lg-0 mt-4" id="event_{{ event.id }}">
                 <div class="row">
@@ -301,14 +307,68 @@
 </div>
 
 
+<div class="col-md-4">
+    <div class="modal fade" id="create-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+      <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title" id="modal-title-notification">Create new event:</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <form method="POST" id="create-event-form" action="{% url 'create-new-event' %}">
+            {% csrf_token %}
+  
+  
+            <div class="modal-body">
+  
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Event Name:</label>
+                <input type="text"  name="event_name" required class="form-control" id="exampleFormControlInput1" placeholder="">
+              </div>
+  
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Date:</label>
+                <input type="date"  name="date" required class="form-control" id="exampleFormControlInput1" placeholder="">
+              </div>
+  
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Event Location:</label>
+                <input type="text"  name="location" required class="form-control" id="exampleFormControlInput1" placeholder="">
+              </div>
+  
+              <div class="form-group">
+                <label for="exampleFormControlInput1">Budget:</label>
+                <input type="number"  name="budget" required class="form-control" id="exampleFormControlInput1" placeholder="">
+              </div>
+  
+  
+              <div class="form-group">
+                <label for="exampleFormControlTextarea1">Event Description:</label>
+                <textarea class="form-control" name="description" id="exampleFormControlTextarea1" rows="3"></textarea>
+              </div>
+  
+  
+  
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-white">Ok, Got it</button>
+              <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
 {% endblock %}
 
 
 {% block js %}
 
-
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -677,6 +737,56 @@ document.querySelectorAll('.book-service-form').forEach(function(form) {
       calculateEstimatedBill();
     });
 </script>
+
+  
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('create-event-form'); // Replace with your form's ID
+  
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+  
+        const formData = new FormData(form);
+  
+        fetch('/create-new-event/', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === 'Event created successfully!') {
+            Swal.fire({
+              title: 'Success!',
+              text: data.message,
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              window.location.href = 'http://127.0.0.1:8000/customer/added-service/';
+            });
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              text: data.message,
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        })
+        .catch(error => {
+          Swal.fire({
+            title: 'Error!',
+            text: 'An unexpected error occurred.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+          console.error('Error:', error);
+        });
+      });
+    });
+  </script>
 
   
 

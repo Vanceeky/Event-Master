@@ -50,10 +50,13 @@ def dashboard(request):
 
 
 def service_provider(request, provider_id):
+
+    user = User.objects.get(id=provider_id)
+    provider = get_object_or_404(ServiceProvider, user=user) 
+
     
-    provider = get_object_or_404(ServiceProvider, id=provider_id) 
-    
-    services = Service.objects.filter(provider=provider)
+    # Prefetch services and related images
+    services = Service.objects.filter(provider=provider).prefetch_related('images')
     
     #service_posts = ServicePost.objects.filter(service__in=services).prefetch_related('images')
     service_posts = ServicePost.objects.filter(created_by=provider).prefetch_related('comments', 'images')
@@ -131,6 +134,8 @@ def create_post(request):
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 
+def provider_bookings(request):
+    return render(request, 'base/provider/bookings.html')
 
 
 
@@ -406,3 +411,35 @@ def submit_booking_request(request, event_id):
         return redirect('added-service-page')
 
     return redirect('added-service-page')
+
+
+
+def inquire_service(request):
+    if request.method == 'POST':
+        provider = request.POST.get('provider')
+
+        message = request.POST.get('message')
+
+        service_provider = ServiceProvider.objects.get(id=provider)
+
+
+
+        chat_group = ChatGroup.objects.filter(
+            is_private=True,
+            members=request.user
+        ).filter(members=service_provider.user).first()
+
+        if not chat_group:
+            chat_group = ChatGroup.objects.create(is_private=True)
+            chat_group.members.add(request.user, service_provider.user)
+
+        GroupMessage.objects.create(
+            group = chat_group,
+            author = request.user,
+            body = message,
+        )
+
+        return redirect('chatroom', chat_group.group_name)
+    
+    return redirect('chatroom', chat_group.group_name)
+

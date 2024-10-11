@@ -60,8 +60,24 @@
       justify-content: center;
       align-items: center;
       height: 300px; /* Adjust height as needed */
-      background-color: #eee; /* Background color for slides */
+
   }
+
+
+    /* For medium-sized screens (tablets) */
+    @media (max-width: 1024px) {
+        .splide__slide {
+            height: 250px; /* Adjust height for tablets */
+        }
+    }
+
+    /* For small screens (mobile devices) */
+    @media (max-width: 768px) {
+        .splide__slide {
+            height: 200px; /* Adjust height for mobile devices */
+        }
+    }
+
 
   </style>
 </head>
@@ -154,7 +170,7 @@
                   <strong class="text-dark">Email:</strong> &nbsp; {{ provider.user.email }}
                 </li>
                 <li class="list-group-item border-0 ps-0 text-sm">
-                  <strong class="text-dark">Location:</strong> &nbsp; {{ provider.address }}
+                  <strong class="text-dark">Address:</strong> &nbsp; {{ provider.address }}
                 </li>
 
               </ul>
@@ -165,76 +181,164 @@
         <div class="col-12 col-xl-9 mt-xl-0 mt-4">
           <div class="tab-content mt-3" id="myTabContent">
             <div class="tab-pane fade show active" id="services" role="tabpanel" aria-labelledby="services-tab">
+
+
               <div class="row">
 
                 {% for service in services %}
-                <div class="shadow-blur mb-3">
-                  <div class="row">
-                    <div class="col-lg-8">
-                      <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="text-gradient text-info p-3">
-                          {{ service.name }}
-                        </h3>
-                        
-                        {% if request.user.id == provider.user.id %}
-                        <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
-                        data-service-name="{{ service.name }}"
-                        data-service-price="{{ service.price }}"
-                        data-service-description="{{ service.description }}"
-                        data-service-inclusions="{{ service.inclusions }}"
-                        data-provider-id="{{ provider.id }}">
-                          <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip" data-bs-placement="top"
-                            aria-hidden="true" aria-label="Edit Service" data-bs-original-title="Edit Service"></i><span
-                            class="sr-only">Edit Service</span>
-                        </a>
-                        {% endif %}
-                      </div>
 
+                  <div class="row mb-3">
 
+                    <div class="col-md-7 pl-md-0">
+                      <div class="card card-pricing border-0 text-center">
+                        <div class="card-header bg-transparent mb-0">
+                            <h3 class="text-uppercase text-gradient text-info p-3 mb-0">{{ service.name }}</h3>
+       
 
-                        <p class="p-3">{{ service.description }}</p>
-                        <div class="row mt-5 p-2 mb-2">
-                          <div class="col-lg-3 col-12">
-                            <h6 class="text-dark tet-uppercase">
-                              What&#39;s included
-                            </h6>
-                          </div>
-                          <div class="col-6">
-                            <hr class="horizontal dark" />
-                          </div>
                         </div>
-                        <div class="row">
-                          {% for inclusion in service.inclusions_list %}
-                          <div class="col-lg-6 col-md-6 col-12">
-                            <div class="info d-flex align-items-center p-2">
-                              <div
-                                class="icon icon-shape icon-xs rounded-circle bg-gradient-info opacity-6 shadow text-center">
-                                <i class="fas fa-check opacity-10"></i>
-                              </div>
-                              <div>
-                                <span class="ps-2">{{ inclusion }}</span>
+                        <div class="card-body">
+                            <p class="card-description">{{ service.description }}</p>
+
+                            {% if service.images.all %}
+                            <div id="serviceSplide-{{ service.id }}" class="splide">
+                              <div class="splide__track">
+                                  <ul class="splide__list">
+                                      {% for image in service.images.all %}
+                                      <li class="splide__slide">
+                                          <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}" style="width: auto; height: 300px" />
+                                      </li>
+                                      {% endfor %}
+                                  </ul>
                               </div>
                             </div>
-                          </div>
-                          {% endfor %}
+                            {% else %}
+                                <p> No available image </p>
+    
+                            {% endif %}
+
                         </div>
                       </div>
                     </div>
-                    <div class="col-lg-4 my-auto">
-                      <div class="card-body text-center">
-                        <h6 class="mt-4 mb-0">Pay once, Own the Moment</h6>
-                        <h4 class="mt-0">
-                          <small>₱</small>{{ service.price }}
-                        </h4>
-                        <button type="button" class="btn bg-gradient-info btn-md mt-2">
-                          Get Access
-                        </button>
-                        <p class="text-sm">Base Price</p>
+    
+                    <div class="col-md-5 pr-md-0">
+                      <div class="card card-pricing text-center bg-default">
+                          <div class="card-body px-lg-6">
+                            <div class="display-6 fw-bold text-dark">₱ {{ service.price|floatformat:0 }}</div>
+                            <span class=" text-muted">Base price</span>
+                            <ul class="list-unstyled my-3">
+
+                              {% for inclusion in service.inclusions_list %}
+                                <li>
+                                  <div class="d-flex align-items-center">
+    
+                                      <div>
+                                        
+                                        <i class="fa fa-check text-dark"></i>
+                                        <span class="pl-2 text-sm">{{ inclusion }}</span>
+                                      </div>
+    
+                                  </div>
+                                </li>
+                              {% endfor %}
+
+                            </ul>
+                            
+
+                          </div>
+                          <div class="card-footer bg-transparent">
+                            
+                            <button type="button" class="btn btn-outline-info mb-3">Add to event</button>
+                            
+                            <button type="button" class="btn btn-info mb-3">Inquire Service</button>
+
+
+                            {% if request.user.id == provider.user.id %}
+                            <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
+                            data-service-name="{{ service.name }}"
+                            data-service-price="{{ service.price }}"
+                            data-service-description="{{ service.description }}"
+                            data-service-inclusions="{{ service.inclusions }}"
+                            data-provider-id="{{ provider.id }}">
+                              Update Service
+                            </a>
+                            {% endif %}
+
+                          </div>
+                      </div>
+                    </div>
+    
+                  </div>
+
+                <!--
+                  <div class="shadow-blur mb-3">
+                    <div class="row">
+                      <div class="col-lg-8">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center">
+                          <h3 class="text-gradient text-info p-3">
+                            {{ service.name }}
+                          </h3>
+                          
+                          {% if request.user.id == provider.user.id %}
+                          <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
+                          data-service-name="{{ service.name }}"
+                          data-service-price="{{ service.price }}"
+                          data-service-description="{{ service.description }}"
+                          data-service-inclusions="{{ service.inclusions }}"
+                          data-provider-id="{{ provider.id }}">
+                            <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                              aria-hidden="true" aria-label="Edit Service" data-bs-original-title="Edit Service"></i><span
+                              class="sr-only">Edit Service</span>
+                          </a>
+                          {% endif %}
+                        </div>
+
+
+
+                          <p class="p-3">{{ service.description }}</p>
+                          <div class="row mt-5 p-2 mb-2">
+                            <div class="col-lg-3 col-12">
+                              <h6 class="text-dark tet-uppercase">
+                                What&#39;s included
+                              </h6>
+                            </div>
+                            <div class="col-6">
+                              <hr class="horizontal dark" />
+                            </div>
+                          </div>
+                          <div class="row">
+                            {% for inclusion in service.inclusions_list %}
+                            <div class="col-lg-6 col-md-6 col-12">
+                              <div class="info d-flex align-items-center p-2">
+                                <div
+                                  class="icon icon-shape icon-xs rounded-circle bg-gradient-info opacity-6 shadow text-center">
+                                  <i class="fas fa-check opacity-10"></i>
+                                </div>
+                                <div>
+                                  <span class="ps-2">{{ inclusion }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 my-auto">
+                        <div class="card-body text-center">
+                          <h6 class="mt-4 mb-0">Pay once, Own the Moment</h6>
+                          <h4 class="mt-0">
+                            <small>₱</small>{{ service.price }}
+                          </h4>
+                          <button type="button" class="btn bg-gradient-info btn-md mt-2">
+                            Get Access
+                          </button>
+                          <p class="text-sm">Base Price</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                -->
+
 
                 {% endfor %}
 
@@ -245,77 +349,84 @@
 
 
               {% for post in service_posts %}
-              
-              <div class="card h-auto  container mb-2">
-                <div class="card-header d-flex align-items-center border-bottom py-3">
-                   <div class="d-flex align-items-center">
-                      <a href="javascript:;">
-                      <img src="{{ post.created_by.logo.url }}" class="avatar" alt="profile-image">
-                      </a>
-                      <div class="mx-3">
-                         <a href="javascript:;" class=" font-weight-bold text-md text-info">{{ post.created_by.name }}</a>
-                         <small class="d-block text-muted">Posted: {{ post.created_at|timesince}} ago</small>
-                      </div>
-                   </div>
-                </div>
-                <div class="card-body">
-                  <h6 class="mt-lg-0 mt-4">{{ post.title }}</h6>
-                   <p class="mb-0">
-                    {{ post.description|safe }}
-                   </p>
-
-                   <div class="splide">
-                    <div class="splide__track">
-                        <ul class="splide__list">
-                          {% for image in post.images.all %}
-                            <li class="splide__slide">
-                              <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}"
-                              style="width: auto; height: 300px" />
-                            </li>
-                          {% endfor %}
-                            <!-- Add more slides as needed -->
-                        </ul>
+                <div class="card h-auto container mb-2">
+                    <div class="card-header d-flex align-items-center border-bottom py-3">
+                        <div class="d-flex align-items-center">
+                            <a href="javascript:;">
+                                <img src="{{ post.created_by.logo.url }}" class="avatar" alt="profile-image">
+                            </a>
+                            <div class="mx-3">
+                                <a href="javascript:;" class="font-weight-bold text-md text-info">{{ post.created_by.name }}</a>
+                                <small class="d-block text-muted">Posted: {{ post.created_at|timesince }} ago</small>
+                            </div>
+                        </div>
                     </div>
-                   </div>
-
-                   <hr class="dark horizontal">
-                   <div class="mb-1 post" data-post-id="{{ post.id }}">
-                    <div id="comments-{{ post.id }}" class="comments">
-                        {% for comment in post.comments.all %}
-                            <div class="d-flex mb-1">
-                                <div class="flex-shrink-0">
-                                    <img alt="Image placeholder" class="avatar rounded-circle" src="/static/images/default-avatar.png">
+                    <div class="card-body">
+                        <h6 class="mt-lg-0 mt-4">{{ post.title }}</h6>
+                        <p class="mb-0">
+                            {{ post.description|safe }}
+                        </p>
+                
+                        <!-- Splide slider -->
+                         {% if post.images.all %}
+                         <div id="postSplide-{{ post.id }}" class="splide">
+                          <div class="splide__track">
+                              <ul class="splide__list">
+                                  {% for image in post.images.all %}
+                                  <li class="splide__slide">
+                                      <img src="{{ image.image.url }}" class="img-fluid" alt="{{ image.description }}" style="width: auto; height: 300px" />
+                                  </li>
+                                  {% endfor %}
+                              </ul>
+                          </div>
+                        </div>
+                        {% else %}
+                          <p> No available image </p>
+                        {% endif%}
+                
+                        <hr class="dark horizontal">
+                
+                        <!-- Comment toggle button -->
+                        <a type="button" class="mb-2 toggle-comments-btn" data-post-id="{{ post.id }}">View all comments</a>
+                
+                        <div class="mb-1 post" data-post-id="{{ post.id }}">
+                            <!-- Comments section hidden by default -->
+                            <div id="comments-{{ post.id }}" class="comments" style="display: none;">
+                                {% for comment in post.comments.all %}
+                                <div class="d-flex mb-1">
+                                    <div class="flex-shrink-0">
+                                        <img alt="Image placeholder" class="avatar rounded-circle" src="/static/images/default-avatar.png">
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="h6 mt-0 text-capitalize">{{ comment.author.first_name }} {{ comment.author.last_name }}</h6>
+                                        <p class="text-sm">{{ comment.content }}</p>
+                                        <small class="text-xxs">{{ comment.created_at|timesince }} ago</small>
+                                    </div>
                                 </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="h6 mt-0 text-capitalize">{{ comment.author.first_name }} {{ comment.author.last_name }}</h6>
-                                    <p class="text-sm">{{ comment.content }}</p>
-                                    <small class="text-xxs">{{ comment.created_at|timesince }} ago</small>
+                                {% endfor %}
+                            </div>
+                
+                            <!-- Add new comment section -->
+                            <div class="d-flex mt-4">
+                                <div class="flex-shrink-0">
+                                    <img alt="Image placeholder" class="avatar rounded-circle me-3" src="/static/images/default-avatar.png">
+                                </div>
+                                <div class="flex-grow-1 my-auto">
+                                    <form class="commentForm" action="{% url 'add_comment_post' %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" value="{{ post.id }}" name="post_id">
+                                        <div class="form-group">
+                                            <textarea class="form-control" name="comment" id="exampleFormControlTextarea1" placeholder="Write your comment here..." rows="3"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm bg-gradient-info">Post Comment</button>
+                                    </form>
                                 </div>
                             </div>
-                        {% endfor %}
-                    </div>
-                
-                    <div class="d-flex mt-4">
-                        <div class="flex-shrink-0">
-                            <img alt="Image placeholder" class="avatar rounded-circle me-3" src="/static/images/default-avatar.png">
-                        </div>
-                        <div class="flex-grow-1 my-auto">
-                            <form class="commentForm" action="{% url 'add_comment_post' %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" value="{{ post.id }}" name="post_id">
-                                <div class="form-group">
-                                    <textarea class="form-control" name="comment" id="exampleFormControlTextarea1" placeholder="Write your comment here..." rows="3"></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-sm bg-gradient-info">Post Comment</button>
-                            </form>
                         </div>
                     </div>
                 </div>
-                
-                </div>
-              </div>
-
               {% endfor %}
+              
 
             </div>
           </div>
@@ -393,6 +504,7 @@
           {% csrf_token %}
           <div class="modal-body">
             <input type="hidden" name="provider_id" value="{{ provider.id }}" />
+            <input type="hidden" name="user_id" value="{{ request.user.id }}"/>
             <div class="form-group">
               <label for="exampleFormControlInput1">Service Name:</label>
               <input type="text" class="form-control" name="service_name" required placeholder="Service..." />
@@ -447,6 +559,7 @@
           {% csrf_token %}
           <div class="modal-body">
             <input type="hidden" name="provider_id" id="provider_id" />
+            <input type="hidden" name="user_id" value="{{ request.user.id }}"/>
             <div class="form-group">
               <label for="service_name">Service Name:</label>
               <input type="text" class="form-control" id="service_name" name="service_name" required placeholder="Service..." />
@@ -496,6 +609,8 @@
           <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" name="provider_id" value="{{ provider.id }}" />
+            
+            <input type="hidden" name="user_id" value="{{ request.user.id }}"/>
 
             <div class="form-group">
               <label for="postTitle">Title:</label>
@@ -527,21 +642,133 @@
   </div>
 
 
+  
+<div class="col-md-4">
+  <div class="modal fade" id="add-service-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+    <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modal-title-notification">Add service to event:</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form method="POST" id="add-service-form" action="{% url 'add_service_to_event' %}">
+          {% csrf_token %}
+
+          <input type="hidden" name="service_id" value="{{service.id }}">
+
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="exampleFormControlSelect1">Please select an event:</label>
+              <select class="form-control" id="event_select" name="event_id">
+                <option>.............</option>
+                <option></option>
+              </select>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-white">Ok, Got it</button>
+            <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">New message to @{{ service.provider.name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form method="POST" action="{% url 'inquire_service' %}">
+            {% csrf_token %}
+            <div class="modal-body">
+
+
+                <input type="hidden" name="provider" value="{{ service.provider.id }}">
+                <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">Service:</label>
+                    <input type="text" class="form-control" name="service" value="{{ service.name }}" id="service" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="message-text" class="col-form-label">Message:</label>
+                    <textarea class="form-control" name="message" rows="3" id="message-text">Hi, I'm interested in your {{ service.name }} service.
+                    </textarea>
+                </div>
+            
+            </div>
+            <div class="modal-footer">
+
+            <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn bg-gradient-info">Send message</button>
+
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
   <!--   Core JS Files   -->
   {% include 'includes/scripts.html' %}
 
-  <script src="https://cdn.ckeditor.com/ckeditor5/37.0.0/classic/ckeditor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js"></script>
-    <script>
-        // Your JavaScript initialization code
-        var splide = new Splide('.splide', {
-            type: 'fade',
-            rewind: true,
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+      
+        const toggleButtons = document.querySelectorAll('.toggle-comments-btn');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                const commentsSection = document.getElementById(`comments-${postId}`);
+                
+              
+                if (commentsSection.style.display === 'none' || commentsSection.style.display === '') {
+                    commentsSection.style.display = 'block';
+                    this.textContent = 'Hide comments'; 
+                } else {
+                    commentsSection.style.display = 'none';
+                    this.textContent = 'View all comments'; 
+                }
+            });
         });
+    });
 
-        splide.mount();
-    </script>
+  </script>
+
+  <script>
+    // Initialize all service splide sliders
+    document.querySelectorAll('[id^="serviceSplide"]').forEach(function(el) {
+      var serviceSplide = new Splide('#' + el.id, {
+          type: 'fade',
+          rewind: true,
+      });
+      serviceSplide.mount();
+    });
+
+    // Initialize all post splide sliders
+    document.querySelectorAll('[id^="postSplide"]').forEach(function(el) {
+      var postSplide = new Splide('#' + el.id, {
+          type: 'fade',
+          rewind: true,
+      });
+      postSplide.mount();
+    });
+
+</script>
 
 
   <script>
@@ -588,7 +815,7 @@
                 didClose: () => {
                   // Redirect to the provider page after the alert closes
                   const providerId = form.querySelector(
-                    'input[name="provider_id"]'
+                    'input[name="user_id"]'
                   ).value;
                   window.location.href = `/service-provider/${providerId}/`;
                 },
@@ -650,7 +877,7 @@
                 didClose: () => {
                   // Redirect to the provider page after the alert closes
                   const providerId = form.querySelector(
-                    'input[name="provider_id"]'
+                    'input[name="user_id"]'
                   ).value;
                   window.location.href = `/service-provider/${providerId}/`;
                 },
@@ -707,7 +934,7 @@
   </script>
 
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
   <script>
     $(document).ready(function() {

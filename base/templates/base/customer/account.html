@@ -17,22 +17,90 @@
               background-image: url('/static/assets/img/curved-images/curved.jpg');
               background-position-y: 50%;
             "></div>
-        <div class="card card-body blur mx-4 mt-n6 overflow-hidden">
-          <div class="row gx-4">
-
-            <div class="col-auto">
-              <div class="avatar avatar-xl position-relative">
-                <img src="/static/assets/img/bruce-mars.jpg" alt="profile_image"
-                  class="w-100 border-radius-lg shadow-sm" />
+        <div class="card card-body blur mx-4 mt-n9 overflow-hidden">
+          <form class="row gx-4" method="POST">
+            
+            {% csrf_token %}
+              <div class="col-md-3 z-index-1  ">
+                <div class="section ">
+                  <section class="z-index-1  text-center">
+                      <div class="fileinput fileinput-new text-center" data-provides="fileinput">
+                            <div id="profile-pic-container" class="mb-3">
+                                <img id="profile-pic" src="{{ customer.avatar.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                            </div>
+                            <div class="mb-3">
+                                <input type="file" id="file-input" name="avatar" class="d-none" accept="image/*">
+                                <button id="change-profile-btn" class="btn btn-sm btn-secondary">Change Profile</button>
+                                
+                            </div>
+        
+                      </div>
+                      <h3 class="title mt-4 text-capitalize">{{ patient.user.first_name }} {{ patient.user.last_name }} </h3>
+                  </section>
+        
+                </div>
               </div>
-            </div>
-            <div class="col-auto my-auto">
+              <div class="col-md-8 ml-auto z-index-2">
+                <div class="">
+         
+            
+                    <p class="text-uppercase text-sm">User Information</p>
+                    <div class="row">
 
-              <div class="h-100">
-                <h5 class="mb-1 text-uppercase">{{ customer.user.first_name }} {{ customer.user.last_name}}</h5>
-              </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                        <label for="example-text-input" class="form-control-label">Firstname</label>
+                        <input class="form-control" type="text" value="{{ customer.user.first_name }}">
+                        </div>
+                      </div>
 
-            </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                        <label for="example-text-input" class="form-control-label">Lastname</label>
+                        <input class="form-control" type="text" value="{{ customer.user.last_name }}">
+                        </div>
+                      </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Email address</label>
+                                <input class="form-control" type="email" value="{{ customer.user.email }}">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr class="horizontal dark">
+
+                    <p class="text-uppercase text-sm">Contact Information</p>
+                    <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Contact Number</label>
+                                <input class="form-control" type="text" value="{{ customer.phone_number }}">
+                                </div>
+                            </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Address</label>
+                                <input class="form-control" type="text" value="{{ customer.address }}">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="d-flex align-items-end btn btn-outline-info">Save Changes</button>
+
+              
+
+                </div>
+             </div>
+
+
+
+
+            <!-- ADD EVENT MODAL
             <div class="col-lg-4 text-end col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
 
                         <a type="button" data-bs-toggle="modal" data-bs-target="#create-event" class="btn btn-secondary btn-icon mb-3 mb-sm-0">
@@ -41,14 +109,20 @@
                       </a>
 
             </div>
-          </div>
+            -->
+
+
+            </form>
         </div>
       </div>
     </div>
 
     <div class="container">
+
+
       <div class="row mt-3">
 
+        <!--
       <div class="col-12 col-xl-4 mt-md-0 mt-4">
           <div class="card h-100 d-flex">
              <div class="card-header pb-0 p-3">
@@ -95,7 +169,7 @@
              </div>
           </div>
       </div>
-
+      -->
 
 
         <!--
@@ -275,72 +349,35 @@
     </div>
 
    
-  </section>
+</section>
 
 
 
   <!--- MODALS -->
 
-<div class="col-md-4">
-  <div class="modal fade" id="create-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
-    <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h6 class="modal-title" id="modal-title-notification">Create new event:</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <form method="POST" id="create-event-form" action="{% url 'create-new-event' %}">
-          {% csrf_token %}
-
-
-          <div class="modal-body">
-
-            <div class="form-group">
-              <label for="exampleFormControlInput1">Event Name:</label>
-              <input type="text"  name="event_name" required class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>
-
-            <div class="form-group">
-              <label for="exampleFormControlInput1">Date:</label>
-              <input type="date"  name="date" required class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>
-
-            <div class="form-group">
-              <label for="exampleFormControlInput1">Event Location:</label>
-              <input type="text"  name="location" required class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>
-
-            <div class="form-group">
-              <label for="exampleFormControlInput1">Budget:</label>
-              <input type="number"  name="budget" required class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>
-
-
-            <div class="form-group">
-              <label for="exampleFormControlTextarea1">Event Description:</label>
-              <textarea class="form-control" name="description" id="exampleFormControlTextarea1" rows="3"></textarea>
-            </div>
-
-
-
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-white">Ok, Got it</button>
-            <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 {% endblock %}
 
 
 {% block js %}
+
+<script>
+  document.getElementById('change-profile-btn').addEventListener('click', function() {
+      document.getElementById('file-input').click();
+  });
+
+  document.getElementById('file-input').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              document.getElementById('profile-pic').src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+      }
+  });
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -405,57 +442,6 @@
 
 
 
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('create-event-form'); // Replace with your form's ID
-
-    form.addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      const formData = new FormData(form);
-
-      fetch('/create-new-event/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message === 'Event created successfully!') {
-          Swal.fire({
-            title: 'Success!',
-            text: data.message,
-            icon: 'success',
-            confirmButtonText: 'OK'
-          }).then(() => {
-            window.location.href = 'http://127.0.0.1:8000/customer/added-service/';
-          });
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: data.message,
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
-        }
-      })
-      .catch(error => {
-        Swal.fire({
-          title: 'Error!',
-          text: 'An unexpected error occurred.',
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
-        console.error('Error:', error);
-      });
-    });
-  });
-</script>
 
 
 {% endblock %}
