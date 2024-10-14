@@ -25,6 +25,7 @@ urlpatterns = [
 
 
 
+
     #HOME PAGE PATHS
     path('service-details/<int:service_id>/', views.service_details, name='service-details'),
 
@@ -51,7 +52,11 @@ urlpatterns = [
 
     path('submit-booking-request/<int:event_id>/', views.submit_booking_request, name='submit_booking_request'),
 
-    path('inquire/', views.inquire_service, name="inquire_service")
+    path('inquire/', views.inquire_service, name="inquire_service"),
+
+
+    path('accept-booking/', views.accept_booking_request, name='accept-booking'),
+    path('cancel-request/', views.cancel_booking_request, name='cancel-request'),
 
 ]
 

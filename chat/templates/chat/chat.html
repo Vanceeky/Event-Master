@@ -4,31 +4,31 @@
 
 {% block stylesheet %}
 <style>
-    /* Basic styling for the chat container */
+  
     #chat_messages {
-        max-height: 400px; /* Adjust height as needed */
-        overflow-y: auto; /* Enable vertical scrolling */
-        overflow-x: hidden; /* Disable horizontal scrolling */
-        scrollbar-width: thin; /* For Firefox */
-        scrollbar-color: #888 #f1f1f1; /* For Firefox */
+        max-height: 400px;
+        overflow-y: auto; 
+        overflow-x: hidden; 
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1; 
     }
     
     /* For WebKit browsers (Chrome, Safari) */
     #chat_messages::-webkit-scrollbar {
-        width: 8px; /* Width of the scrollbar */
+        width: 8px; 
     }
     
     #chat_messages::-webkit-scrollbar-track {
-        background: #f1f1f1; /* Background of the scrollbar track */
+        background: #f1f1f1;
     }
     
     #chat_messages::-webkit-scrollbar-thumb {
-        background: #888; /* Color of the scrollbar thumb */
-        border-radius: 10px; /* Rounded corners for the thumb */
+        background: #888; 
+        border-radius: 10px; 
     }
     
     #chat_messages::-webkit-scrollbar-thumb:hover {
-        background: #555; /* Color of the thumb on hover */
+        background: #555;
     }
 
     @media (max-width: 768px) {
@@ -37,6 +37,24 @@
           padding: 0;
         }
       }
+
+   
+      #chat_messages::-webkit-scrollbar {
+          width: 0; 
+      }
+      
+   
+      #chat_messages {
+          scrollbar-width: none; 
+      }
+      
+   
+      #chat_messages {
+          overflow-y: scroll;
+      }
+      
+
+
 
 
 </style>
@@ -98,7 +116,7 @@
                                                 <div class="ms-3">
                                                     <h6 class="mb-0 d-block text-uppercase chat-header-name">
                                                         {% if other_user %}
-                                                            {{ other_user.first_name }} {{ other_user.last_name}}
+                                                            {{ other_user.first_name }} {{ other_user.last_name }}
                                                         {% endif %}
                                                     </h6>
                                                 </div>
@@ -106,31 +124,54 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body overflow-auto overflow-x-hidden" id="chat_messages" style="max-height: calc(100vh - 200px);">
+                                <div class="card-body overflow-auto" id="chat_messages" style="max-height: calc(100vh - 200px);">
                                     {% for message in chat_messages reversed %}
                                         {% include 'chat/chat_message.html' %}
                                     {% endfor %}
                                 </div>
                                 <div class="card-footer d-block">
-                                    <form class="align-items-center" method="POST" 
+                                    <form id="chat_file_form" enctype="multipart/form-data" class="d-flex justify-content-between align-items-center mb-0"
+                                        hx-post="{% url 'chat-file-upload' chat_group.group_name %}"
+                                        hx-target="#chat_messages"
+                                        hx-swap="beforeend"
+                                        _="on htmx:afterRequest resetFileInput()"
+                                    >
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="uploadImages" class="custom-file-upload btn-outline-info cursor-pointer">
+                                                <i class="fas fa-upload"></i> Send a file
+                                            </label>
+                                            <input type="file" id="uploadImages" name="file" style="display: none;" onchange="displayFileName()">
+                                            <span id="fileName" class="ms-2"></span>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm bg-gradient-primary mb-0 ms-2">
+                                            <i class="ni ni-send"></i> Send file
+                                        </button>
+                                    </form>
+                        
+                                    <form class="align-items-center mt-0"
                                         hx-ext="ws"
                                         ws-connect="/ws/chatroom/{{ chatroom_name }}/"
                                         ws-send
                                         _="on htmx:wsAfterSend reset() me"
+                                        onsubmit="return validateMessage()"
                                     >
                                         {% csrf_token %}
                                         <div class="d-flex">
                                             <div class="input-group">
-                                                <input type="text" name="message" class="form-control" placeholder="Type here" aria-label="Message example input" onfocus="focused(this)" onfocusout="defocused(this)">
+                                                <input type="text" name="message" id="messageInput" class="form-control" required placeholder="Type here" aria-label="Message example input" onfocus="focused(this)" onfocusout="defocused(this)">
                                             </div>
-                                            <button type="submit" class="btn bg-gradient-primary mb-0 ms-2">
+                                            <!--
+                                            <button type="submit" id="sendButton" class="btn bg-gradient-primary mb-0 ms-2">
                                                 <i class="ni ni-send"></i>
                                             </button>
+                                            -->
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>
@@ -152,70 +193,60 @@
 <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
 
 
-
-    
 <script>
+    function checkInput() {
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+       
+        sendButton.disabled = messageInput.value.trim() === '';
+    }
+
+    // Optional validation before sending
+    function validateMessage() {
+        const messageInput = document.getElementById('messageInput');
+        if (messageInput.value.trim() === '') {
+            return false; 
+        }
+        return true;
+    }
+</script>
+
+
+<script>
+
+
+    function displayFileName() {
+        const uploadInput = document.getElementById('uploadImages');
+        const fileNameDisplay = document.getElementById('fileName');
+        
+        if (uploadInput.files.length > 0) {
+            fileNameDisplay.textContent = uploadInput.files[0].name;
+        } else {
+            fileNameDisplay.textContent = '';
+        }
+    }
+
+    function resetFileInput() {
+        const uploadInput = document.getElementById('uploadImages');
+        const fileNameDisplay = document.getElementById('fileName');
+        uploadInput.value = '';
+        fileNameDisplay.textContent = ''; 
+    }
 
 </script>
 
-<!--
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('/api/chat-groups/')
-            .then(response => response.json())
-            .then(data => {
-                const chatContainer = document.querySelector('.card-body.p-2');
-                chatContainer.innerHTML = ''; // Clear existing content
-
-                data.forEach(chat => {
-                    const membersNames = chat.members.join(', '); // Join members' names
-                    const chatGroupLink = document.createElement('a');
-                    chatGroupLink.href = 'javascript:void(0);';
-                    chatGroupLink.className = 'd-block p-2';
-                    chatGroupLink.dataset.groupId = chat.id; // Store group ID
-                    chatGroupLink.dataset.groupName = chat.group_name; // Store group name
-                    chatGroupLink.innerHTML = `
-                        <div class="d-flex p-2">
-                            <img alt="Image" src="../../assets/img/team-1.jpg" class="avatar shadow">
-                            <div class="ms-3">
-                                <h6 class="mb-0">${membersNames}</h6>
-                                <p class="text-muted text-xs mb-2">${chat.last_message}</p>
-                            </div>
-                        </div>
-                    `;
-                    chatContainer.appendChild(chatGroupLink);
-
-                    // Add click event listener
-                    chatGroupLink.addEventListener('click', function() {
-                        const groupId = this.dataset.groupId;
-                        const groupName = this.dataset.groupName;
-
-                        fetch(`/api/chat-groups/${groupId}/messages/`)
-                            .then(response => {
-                                if (!response.ok) throw new Error('Network response was not ok');
-                                return response.text();
-                            })
-                            .then(data => {
-                                document.getElementById('chat_messages').innerHTML = data;
-                                window.history.pushState({}, '', `/chat/room/${groupName}/`);
-                            })
-                            .catch(error => console.error('Error fetching messages:', error));
-                    });
-                });
-            })
-            .catch(error => console.error('Error fetching chat groups:', error));
-    });
-</script>
--->
-
 
 
 
 <script>
 
-function scrollToBottom() {
-    const container = document.getElementById('chat_messages')
-    container.scrollTop = container.scrollHeight;
+function scrollToBottom(time=0) {
+    setTimeout(function() {
+        const container = document.getElementById('chat_messages')
+        container.scrollTop = container.scrollHeight;
+    }, time);
+
 }
 
 scrollToBottom()

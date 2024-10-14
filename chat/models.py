@@ -4,6 +4,7 @@ import shortuuid
 
 import random
 import string
+import os
 
 def generate_random_chars(length=8):
     characters = string.ascii_letters + string.digits  # Exclude special characters
@@ -22,11 +23,30 @@ class ChatGroup(models.Model):
 class GroupMessage(models.Model):
     group = models.ForeignKey(ChatGroup, related_name="chat_messages", on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    body = models.CharField(max_length=512)
+    body = models.CharField(max_length=512, null=True, blank = True)
+    file = models.FileField(upload_to='group_messages', null = True, blank = True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def filename(self):
+        if self.file:
+            return os.path.basename(self.file.name)
+        else:
+            return None
+        
+
     def __str__(self):
-        return f"{self.author.username}: {self.body}"
+        if self.body:
+            return f"{self.author.username}: {self.body}"
+        elif self.file:
+            return f"{self.author.username}: {self.file}"
     
     class Meta:
         ordering = ["-created_at"]
+
+    @property
+    def is_image(self):
+        if self.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', 'svg', '.webp', '.tiff', '.bmp', '.jfif')):
+            return True
+        else:
+            return False

@@ -135,8 +135,30 @@ def create_post(request):
 
 
 def provider_bookings(request):
-    return render(request, 'base/provider/bookings.html')
+    provider = ServiceProvider.objects.get(user=request.user)
 
+   
+    selected_services = SelectedService.objects.filter(
+        service__provider=provider
+    ).exclude(status='draft').select_related('event').prefetch_related('event__customer')
+
+  
+    events_dict = {}
+    for service in selected_services:
+        event = service.event
+        if event not in events_dict:
+            events_dict[event] = {
+                'event': event,
+                'services': []
+            }
+        events_dict[event]['services'].append(service)
+
+    context = {
+        'provider': provider,
+        'events': events_dict.values(),  
+    }
+
+    return render(request, 'base/provider/bookings.html', context)
 
 
 # CUSTOMER VIEWS
@@ -381,7 +403,7 @@ def submit_booking_request(request, event_id):
         selected_services = SelectedService.objects.filter(id__in=selected_service_ids)
 
         for selected_service in selected_services:
-            selected_service.status = 'Pending'
+            selected_service.status = 'pending'
             selected_service.save()
 
       
@@ -414,6 +436,7 @@ def submit_booking_request(request, event_id):
 
 
 
+
 def inquire_service(request):
     if request.method == 'POST':
         provider = request.POST.get('provider')
@@ -442,4 +465,59 @@ def inquire_service(request):
         return redirect('chatroom', chat_group.group_name)
     
     return redirect('chatroom', chat_group.group_name)
+
+def accept_booking_request(request):
+    if request.method == "POST":
+        selected_service_ids = request.POST.getlist('selected_services')
+        selected_services = SelectedService.objects.filter(id__in=selected_service_ids)
+
+        for selected_service in selected_services:
+            selected_service.status = 'accepted'
+            selected_service.save()
+
+           
+            chat_group = ChatGroup.objects.filter(
+                is_private=True,
+                members=request.user
+            ).filter(members=selected_service.event.customer.user).first()
+
+            GroupMessage.objects.create(
+                group=chat_group,
+                author=selected_service.service.provider.user,
+                body=(f"Hi, your booking request for "
+                      f"'{selected_service.service.name}' for the event '{selected_service.event.title}' "
+                      f"on {selected_service.event.event_date} has been accepted. Thank you!")
+            )
+
+        return JsonResponse({'success': True, 'message': 'The booking requests have been accepted.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+def cancel_booking_request(request):
+    if request.method == "POST":
+        selected_service_ids = request.POST.getlist('selected_services')
+        selected_services = SelectedService.objects.filter(id__in=selected_service_ids)
+
+        for selected_service in selected_services:
+            selected_service.status = 'rejected' 
+            selected_service.save()
+
+            
+            chat_group = ChatGroup.objects.filter(
+                is_private=True,
+                members=request.user
+            ).filter(members=selected_service.event.customer.user).first()
+
+            GroupMessage.objects.create(
+                group=chat_group,
+                author=selected_service.service.provider.user,
+                body=(f"Hi, your booking request for "
+                      f"'{selected_service.service.name}' for the event '{selected_service.event.title}' "
+                      f"on {selected_service.event.event_date} has been canceled. If you have any questions, "
+                      f"please feel free to reach out. Thank you!")
+            )
+
+        return JsonResponse({'success': True, 'message': 'The booking requests have been canceled.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
 

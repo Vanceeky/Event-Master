@@ -1,0 +1,14 @@
+{% if message.body %}
+<p class="mb-1">
+    {{ message.body }}<br>
+</p>
+{% elif message.file %}
+    {% if message.is_image %}
+    <img src="{{ message.file.url }}" alt="Rounded image" class="max-w-72 min-w-8 rounded mb-1" style="max-width: 300px; max-height: 300px;">
+
+    {% else %}
+
+        <a class="cursor-pointer italic hover:underline" href="{{ message.file.url }}" download><i class="fa fa-paperclip"></i> {{ message.filename }}</a>
+
+    {% endif %}
+{% endif %}

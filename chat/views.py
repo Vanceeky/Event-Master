@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import *
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, JsonResponse
+from django.http import Http404, JsonResponse, HttpResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 # Create your views here.
@@ -64,17 +66,23 @@ def inbox(request):
         last_message = group.chat_messages.first()  # Due to ordering, this is the most recent
         other_members = group.members.exclude(id=user.id)  # Other members in the group
         
-        if last_message and last_message.author == user:
-            last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
+        if last_message:
+            if last_message.file:  # Check if the message has an associated file
+                last_message_text = "You: Sent a file" if last_message.author == user else f"{last_message.author.username}: Sent a file"
+            else:
+                if last_message.author == user:
+                    last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
+                else:
+                    last_message_text = (last_message.body[:25] + "...") if len(last_message.body) > 25 else last_message.body
         else:
-            last_message_text = (last_message.body[:25] + "...") if last_message and len(last_message.body) > 25 else (last_message.body if last_message else "No messages yet")
-
+            last_message_text = "No messages yet"
 
         groups_info.append({
             'group': group,
             'other_members': other_members,
             'last_message': last_message_text,
         })
+
     context = {
         'groups_info': groups_info,
     }
@@ -110,6 +118,7 @@ def get_chat_messages(request, group_id):
         } if other_user else None
     })
 
+
 @login_required
 def chat_view(request, chatroom_name='public-chat'):
     chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
@@ -121,14 +130,22 @@ def chat_view(request, chatroom_name='public-chat'):
     private_chat_groups = ChatGroup.objects.filter(is_private=True, members=request.user)
 
     groups_info = []
+
+  
     for group in private_chat_groups:
         last_message = group.chat_messages.first()  # Due to ordering, this is the most recent
         other_members = group.members.exclude(id=user.id)  # Other members in the group
         
-        if last_message and last_message.author == user:
-            last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
+        if last_message:
+            if last_message.file:  # Check if the message has an associated file
+                last_message_text = "You: Sent a file" if last_message.author == user else f"{last_message.author.username}: Sent a file"
+            else:
+                if last_message.author == user:
+                    last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
+                else:
+                    last_message_text = (last_message.body[:25] + "...") if len(last_message.body) > 25 else last_message.body
         else:
-            last_message_text = (last_message.body[:25] + "...") if last_message and len(last_message.body) > 25 else (last_message.body if last_message else "No messages yet")
+            last_message_text = "No messages yet"
 
         groups_info.append({
             'group': group,
@@ -279,3 +296,34 @@ def fetch_group_messages(request, group_id):
     ]
     
     return JsonResponse(messages_data, safe=False)
+
+
+def chat_file_upload(request, chatroom_name):
+
+    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+
+    if request.htmx and request.FILES:
+        file = request.FILES['file']
+
+        message = GroupMessage.objects.create(
+            file = file,
+            author = request.user,
+            group = chat_group
+        )
+
+        channel_layer = get_channel_layer()
+
+        event = {
+            'type': 'message_handler',
+            'message_id': message.id,
+        }
+
+        async_to_sync(channel_layer.group_send)(
+            chatroom_name, event
+
+        )
+
+    return HttpResponse()
+
+
+

@@ -141,7 +141,7 @@
                                                                 <div class="d-flex align-items-center px-2 py-1">
                                                                     <div class="form-check text-center">
                                                                         
-                                                                    {% if selected_service.status == 'Pending' %}
+                                                                    {% if selected_service.status == 'pending' or selected_service.status == 'rejected' or selected_service.status == 'accepted' %}
 
                                                                         <input class="form-check-input" type="checkbox" name="selected_services" value="{{ selected_service.id }}" checked disabled readonly>
 
@@ -168,7 +168,15 @@
                                                                 <span class="badge badge-pill bg-gradient-info">{{ selected_service.service.category }}</span>
                                                             </td>
                                                             <td class="align-middle text-center text-md">
-                                                            <span class="badge badge-pill bg-gradient-info">{{ selected_service.status }}</span>
+                                                              {% if selected_service.status == 'pending' %}
+                                                                  <span class="badge badge-pill bg-gradient-warning">{{ selected_service.status }}</span>
+                                                              {% elif selected_service.status == 'accepted' %}
+                                                                  <span class="badge badge-pill bg-gradient-success">{{ selected_service.status }}</span>
+                                                              {% elif selected_service.status == 'rejected' %}
+                                                                  <span class="badge badge-pill bg-gradient-danger">{{ selected_service.status }}</span>
+                                                                {% elif selected_service.status == 'draft' %}
+                                                                  <span class="badge badge-pill bg-gradient-secondary">{{ selected_service.status }}</span>
+                                                              {% endif %}
                                                             </td>
                                                             <td class="align-middle">
                                                             <a href="{% url 'remove_service_from_event' selected_service.id %}" class="text-danger remove_service" aria-expanded="false" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Service">
