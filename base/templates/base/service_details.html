@@ -449,81 +449,7 @@
 
 <!--- MODALS -->
 
-<div class="col-md-4">
-  <div class="modal fade" id="add-service-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
-    <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h6 class="modal-title" id="modal-title-notification">Add service to event:</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <form method="POST" id="add-service-form" action="{% url 'add_service_to_event' %}">
-          {% csrf_token %}
-
-          <input type="hidden" name="service_id" value="{{service.id }}">
-
-          <div class="modal-body">
-
-            <div class="form-group">
-              <label for="exampleFormControlSelect1">Please select an event:</label>
-              <select class="form-control" id="event_select" name="event_id">
-                <option>.............</option>
-                <option></option>
-              </select>
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-white">Ok, Got it</button>
-            <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal -->
-<div class="modal fade" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">New message to @{{ service.provider.name }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <form method="POST" action="{% url 'inquire_service' %}">
-            {% csrf_token %}
-            <div class="modal-body">
-
-
-                <input type="hidden" name="provider" value="{{ service.provider.id }}">
-                <div class="form-group">
-                    <label for="recipient-name" class="col-form-label">Service:</label>
-                    <input type="text" class="form-control" name="service" value="{{ service.name }}" id="service" disabled>
-                </div>
-                <div class="form-group">
-                    <label for="message-text" class="col-form-label">Message:</label>
-                    <textarea class="form-control" name="message" rows="3" id="message-text">Hi, I'm interested in your {{ service.name }} service.
-                    </textarea>
-                </div>
-            
-            </div>
-            <div class="modal-footer">
-
-            <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn bg-gradient-info">Send message</button>
-
-            </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+{% include 'base/customer/modal.html' %}
 
 
 
@@ -570,12 +496,15 @@
         </form>
       </div>
     </div>
-  </div>
+</div>
+
+
 
 {% endblock %}
 
 
 {% block js %}
+
 <script>
     document.getElementById('rating-form').onsubmit = function(event) {
         event.preventDefault(); // Prevent the form from submitting normally
@@ -655,17 +584,6 @@
 
 
 
-<!--
-   <script>
-   document.getElementById('chatButton').addEventListener('click', function() {
-      document.getElementById('chatSidebar').style.bottom = '0'; // Show sidebar
-   });
-
-   document.getElementById('closeSidebar').addEventListener('click', function() {
-      document.getElementById('chatSidebar').style.bottom = '-640px'; // Hide sidebar
-   });
-   </script>
--->
    <script>
 
   window.addEventListener('resize', function() {
@@ -683,84 +601,8 @@ if (window.innerWidth < 576) {
 }
 
 </script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-      // Fetch events from the server
-      fetch('/fetch-events/')
-          .then(response => response.json())
-          .then(data => {
-              const selectElement = document.getElementById('event_select');
-              const events = data.events;
 
-              // Clear existing options except the placeholder
-              selectElement.innerHTML = '<option value="">.............</option>';
 
-              // Populate the dropdown with event options
-              events.forEach(event => {
-                  const option = document.createElement('option');
-                  option.value = event.id;
-                  option.textContent = `${event.title} (${event.event_date})`;
-                  selectElement.appendChild(option);
-              });
-          })
-          .catch(error => {
-              console.error('Error fetching events:', error);
-          });
-  });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('add-service-form'); // Replace with your form's ID
-
-      form.addEventListener('submit', function(event) {
-          event.preventDefault();
-
-          const formData = new FormData(form);
-
-          fetch('/add-service-to-event/', {
-              method: 'POST',
-              body: formData,
-              headers: {
-                  'X-Requested-With': 'XMLHttpRequest'
-              }
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.message === 'Service added to event successfully') {
-                  Swal.fire({
-                      title: 'Success!',
-                      text: data.message,
-                      icon: 'success',
-                      timer: 500,  // Set timer duration (2000ms = 2 seconds)
-                      timerProgressBar: true,  // Show the progress bar
-                      showConfirmButton: false  // Remove the OK button
-
-                  }).then(() => {
-                      window.location.href = '/customer/added-service/';
-                  });
-              } else {
-                  Swal.fire({
-                      text: data.message,
-                      icon: 'info',
-                      confirmButtonText: 'OK'
-                  });
-              }
-          })
-          .catch(error => {
-              Swal.fire({
-                  title: 'Error!',
-                  text: 'An unexpected error occurred.',
-                  icon: 'error',
-                  confirmButtonText: 'OK'
-              });
-              console.error('Error:', error);
-          });
-      });
-  });
-</script>
 
 
 {% endblock %}

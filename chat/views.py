@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
+import random
+import string
 
 # Create your views here.
 ''''
@@ -53,34 +54,54 @@ def chat_view(request, chatroom_name = 'public-chat'):
 
 '''
 
+
 @login_required
 def inbox(request):
     user = request.user
-    
-    # Fetch all chat groups where the user is a member
     chat_groups = ChatGroup.objects.filter(is_private=True, members=user)
 
-    # For each group, find the last message and other members
     groups_info = []
     for group in chat_groups:
-        last_message = group.chat_messages.first()  # Due to ordering, this is the most recent
-        other_members = group.members.exclude(id=user.id)  # Other members in the group
-        
+        last_message = group.chat_messages.first()
+        other_members = group.members.exclude(id=user.id)
+
+        # Prepare to collect member info
+        other_members_info = []
+        for member in other_members:
+            # Access the avatar safely and set default if necessary
+            avatar_url = '/static/images/default-avatar.png'  # Default avatar
+            if hasattr(member, 'customer') and member.customer.avatar:
+                avatar_url = member.customer.avatar.url
+            
+            other_members_info.append({
+                'username': member.username,
+                'avatar': avatar_url,
+                'first_name': member.first_name,
+                'last_name': member.last_name,
+            })
+
+        # Prepare last message information
         if last_message:
-            if last_message.file:  # Check if the message has an associated file
-                last_message_text = "You: Sent a file" if last_message.author == user else f"{last_message.author.username}: Sent a file"
+            is_seen = last_message.is_seen
+            
+            if last_message.file:
+                last_message_text = "You: Sent a file" if last_message.author == user else f"Sent a file"
             else:
-                if last_message.author == user:
-                    last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
-                else:
-                    last_message_text = (last_message.body[:25] + "...") if len(last_message.body) > 25 else last_message.body
+                last_message_text = (
+                    f"You: {last_message.body[:25]}..." if last_message.author == user 
+                    else f"{last_message.body[:25]}..."
+                ) if len(last_message.body) > 25 else last_message.body
+            
+            if not is_seen:
+                last_message_text += " (New)"
         else:
             last_message_text = "No messages yet"
 
         groups_info.append({
             'group': group,
-            'other_members': other_members,
+            'other_members': other_members_info,  # Member info including avatars
             'last_message': last_message_text,
+            'last_message_is_seen': is_seen,
         })
 
     context = {
@@ -88,17 +109,18 @@ def inbox(request):
     }
     return render(request, 'chat/inbox.html', context)
 
+
 def get_chat_messages(request, group_id):
     group = get_object_or_404(ChatGroup, id=group_id)
     
-    # Ensure the current user is a member of the group
+ 
     if request.user not in group.members.all():
         return JsonResponse({'error': 'You are not a member of this group.'}, status=403)
     
-    # Fetch the messages and serialize them
+
     messages = group.chat_messages.select_related('author').order_by('created_at')
     
-    # Find the other member (excluding the current user)
+
     other_user = group.members.exclude(id=request.user.id).first()
     
     messages_data = []
@@ -126,31 +148,48 @@ def chat_view(request, chatroom_name='public-chat'):
     user = request.user
     other_user = None
 
-    # Get all private chat groups that the user is a member of
     private_chat_groups = ChatGroup.objects.filter(is_private=True, members=request.user)
-
     groups_info = []
 
-  
     for group in private_chat_groups:
-        last_message = group.chat_messages.first()  # Due to ordering, this is the most recent
-        other_members = group.members.exclude(id=user.id)  # Other members in the group
-        
+        last_message = group.chat_messages.first() 
+
+        is_last_message_seen = last_message.is_seen if last_message else True  
+
+        other_members_info = []
+        other_members = group.members.exclude(id=user.id)
+
+        for member in other_members:
+            avatar_url = '/static/images/default-avatar.png'  # Default avatar
+            if hasattr(member, 'customer') and member.customer.avatar:
+                avatar_url = member.customer.avatar.url
+            
+            other_members_info.append({
+                'username': member.username,
+                'first_name': member.first_name,
+                'last_name': member.last_name,
+                'avatar': avatar_url,
+            })
+
         if last_message:
-            if last_message.file:  # Check if the message has an associated file
-                last_message_text = "You: Sent a file" if last_message.author == user else f"{last_message.author.username}: Sent a file"
+            if last_message.file:
+                last_message_text = "You: Sent a file" if last_message.author == user else f"Sent a file"
             else:
-                if last_message.author == user:
-                    last_message_text = f"You: {last_message.body[:25]}..." if len(last_message.body) > 25 else f"You: {last_message.body}"
-                else:
-                    last_message_text = (last_message.body[:25] + "...") if len(last_message.body) > 25 else last_message.body
+                last_message_text = (
+                    f"You: {last_message.body[:25]}..." if last_message.author == user 
+                    else f"{last_message.body[:25]}..."
+                ) if len(last_message.body) > 25 else last_message.body
+
+            if not is_last_message_seen:
+                last_message_text += " (New)"
         else:
             last_message_text = "No messages yet"
 
         groups_info.append({
             'group': group,
-            'other_members': other_members,
+            'other_members': other_members_info,  # Updated to include member info
             'last_message': last_message_text,
+            'last_message_is_seen': is_last_message_seen, 
         })
 
     if chat_group.is_private:
@@ -178,49 +217,18 @@ def chat_view(request, chatroom_name='public-chat'):
         'chat_messages': chat_messages,
         'other_user': other_user,
         'chatroom_name': chatroom_name,
-        'groups_info': groups_info,  # Add this line
+        'groups_info': groups_info,  # Include groups_info in context
     }
     return render(request, 'chat/chat.html', context)
 
 
-
-
-
-import random
-import string
 
 def generate_random_chars(length=8):
     characters = string.ascii_letters + string.digits  # Exclude special characters
     return ''.join(random.choice(characters) for _ in range(length))
 
 
-'''
 
-@login_required
-def get_or_create_chatroom(request, username):
-    if request.user.username == username:
-        return redirect('chat')
-    
-    other_user = User.objects.get(username=username)
-    my_chatrooms = request.user.chat_groups.filter(is_private=True)
-
-    if my_chatrooms.exists():
-        for chatroom in my_chatrooms:
-            if other_user in chatroom.members.all():
-                chatroom = chatroom
-                break
-
-            else:
-                chatroom = ChatGroup.objects.create(is_private=True)
-                chatroom.members.add(other_user, request.user)
-                chatroom.save()
-    else:
-        chatroom = ChatGroup.objects.create(is_private=True)
-        chatroom.members.add(other_user, request.user)
-        chatroom.save()
-
-    return redirect('chatroom', chatroom.group_name)
-'''
 @login_required
 def get_or_create_chatroom(request, username):
     if request.user.username == username:
@@ -285,7 +293,7 @@ def user_chat_groups(request):
 @login_required
 def fetch_group_messages(request, group_id):
     chat_group = get_object_or_404(ChatGroup, id=group_id)
-    chat_messages = chat_group.chat_messages.all().order_by('-created_at')
+    chat_messages = chat_group.chat_messages.all().order_by('created_at')
     
     messages_data = [
         {

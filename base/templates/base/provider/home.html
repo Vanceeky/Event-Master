@@ -107,7 +107,7 @@
           <div class="row gx-4">
             <div class="col-auto">
               <div class="avatar avatar-xl position-relative">
-                <img src="/static/assets/img/bruce-mars.jpg" alt="profile_image"
+                <img src="{{ provider.logo.url }}" alt="profile_image"
                   class="w-100 border-radius-lg shadow-sm" />
               </div>
             </div>
@@ -150,13 +150,23 @@
                 <div class="col-md-8 d-flex align-items-center">
                   <h6 class="mb-0">Profile Information</h6>
                 </div>
-                <div class="col-md-4 text-end">
-                  <a href="javascript:;">
-                    <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="modal" data-bs-target="#update-information"
-                      aria-hidden="true" aria-label="Edit Profile" data-bs-original-title="Edit Profile"></i><span
-                      class="sr-only">Edit Profile</span>
-                  </a>
-                </div>
+                {% for group in request.user.groups.all %}
+
+                  {% if group.name == 'provider' %}
+                    {% if request.user.id == provider.user.id %}
+
+                    <div class="col-md-4 text-end">
+                      <a href="javascript:;">
+                        <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="modal" data-bs-target="#update-information"
+                          aria-hidden="true" aria-label="Edit Profile" data-bs-original-title="Edit Profile"></i><span
+                          class="sr-only">Edit Profile</span>
+                      </a>
+                    </div>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+
+
               </div>
             </div>
             <div class="card-body p-3">
@@ -245,25 +255,49 @@
                             
 
                           </div>
-                          <div class="card-footer bg-transparent">
-                            
-                            <button type="button" class="btn btn-outline-info mb-3">Add to event</button>
-                            
-                            <button type="button" class="btn btn-info mb-3">Inquire Service</button>
+                          {% for group in request.user.groups.all %}
 
-
+                          {% if group.name == 'provider' %}
                             {% if request.user.id == provider.user.id %}
-                            <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
-                            data-service-name="{{ service.name }}"
-                            data-service-price="{{ service.price }}"
-                            data-service-description="{{ service.description }}"
-                            data-service-inclusions="{{ service.inclusions }}"
-                            data-provider-id="{{ provider.id }}">
-                              Update Service
-                            </a>
+
+                              <div class="card-footer bg-transparent">
+
+                                {% if request.user.id == provider.user.id %}
+                                <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
+                                data-service-name="{{ service.name }}"
+                                data-service-price="{{ service.price }}"
+                                data-service-description="{{ service.description }}"
+                                data-service-inclusions="{{ service.inclusions }}"
+                                data-provider-id="{{ provider.id }}">
+                                  Update Service
+                                </a>
+                                {% endif %}
+
+                              </div>
+
                             {% endif %}
 
+                            {% elif group.name == 'customer' %}
+                            <div class="card-footer bg-transparent">
+                              <!-- Button to add service to event -->
+                              <button type="button" class="btn btn-outline-info mb-3" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#add-service-event" 
+                                  data-service-id="{{ service.id }}" 
+                                  data-provider-id="{{ service.provider.id }}">Add to event</button>
+                          
+                              <!-- Button to inquire service -->
+                              <button type="button" class="btn btn-info mb-3"  
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#modal-message" 
+                                  data-service-id="{{ service.id }}" 
+                                  data-service-name="{{ service.name }}" 
+                                  data-provider-id="{{ service.provider.id }}">Inquire Service</button>
                           </div>
+                          
+                          {% endif %}
+
+                          {% endfor %}
                       </div>
                     </div>
     
@@ -348,7 +382,7 @@
             <div class="tab-pane fade" id="posts" role="tabpanel" aria-labelledby="posts-tab">
 
 
-              {% for post in service_posts %}
+              {% for post in service_posts reversed %}
                 <div class="card h-auto container mb-2">
                     <div class="card-header d-flex align-items-center border-bottom py-3">
                         <div class="d-flex align-items-center">
@@ -486,7 +520,80 @@
 
   <!-- MODALS -->
 
-  {% include 'base/provider/modals.html' %}
+<!-- Modal -->
+
+
+<!-- Add Service to Event Modal -->
+<div class="modal fade" id="add-service-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
+  <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h6 class="modal-title" id="modal-title-notification">Add service to event:</h6>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form method="POST" id="add-service-form" action="{% url 'add_service_to_event' %}">
+              {% csrf_token %}
+              
+              <!-- Hidden fields to populate -->
+              <input type="hidden" id="service_id" name="service_id">
+              <input type="hidden" id="provider_id" name="provider_id">
+
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="exampleFormControlSelect1">Please select an event:</label>
+                      <select class="form-control" id="event_select" name="event_id">
+                          <option value="">.............</option>
+                          <!-- Add your event options here -->
+                      </select>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="submit" class="btn btn-white">Ok, Got it</button>
+                  <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+<!-- Inquire Service Modal -->
+<div class="modal fade" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">New message to provider</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form method="POST" action="{% url 'inquire_service' %}">
+              {% csrf_token %}
+              
+              <!-- Hidden fields to populate -->
+              <input type="hidden" id="provider_id_message" name="provider">
+              <input type="hidden" id="service_id_message" name="service_id">
+
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="recipient-name" class="col-form-label">Service:</label>
+                      <input type="text" class="form-control" id="service_name_message" name="service" disabled>
+                  </div>
+                  <div class="form-group">
+                      <label for="message-text" class="col-form-label">Message:</label>
+                      <textarea class="form-control" name="message" rows="3" id="message-text">Hi, I'm interested in your service.
+                      </textarea>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn bg-gradient-info">Send message</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+
 
   <!-- Modal HTML -->
   <div class="modal fade" id="update-service" tabindex="-1" role="dialog" aria-labelledby="modal-default"
@@ -540,7 +647,7 @@
 ><!-- MODAL UPDATE INFORMATION -->
 
   <!-- Modal HTML -->
-  <div class="modal fade" id="update-information" tabindex="-1" role="dialog" aria-labelledby="modal-default"
+<div class="modal fade" id="update-information" tabindex="-1" role="dialog" aria-labelledby="modal-default"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -551,11 +658,23 @@
           </button>
         </div>
 
-        <form id="update_information_form" action="{% url 'update-provider' %}" method="POST">
+        <form id="update_information_form" action="{% url 'update-provider' %}" method="POST"  enctype="multipart/form-data">
           {% csrf_token %}
           <div class="modal-body">
 
-            <input type="text" value="{{ provider.user.id }}" name="provider_id">
+            <input type="hidden" value="{{ provider.user.id }}" name="provider_id">
+
+            <div class="fileinput fileinput-new text-center" data-provides="fileinput">
+              <div id="profile-pic-container" class="mb-3">
+                  <img id="profile-pic" src="{{ provider.logo.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+              </div>
+              <div class="mb-3">
+                  <input type="file" id="file-input" name="logo" class="d-none" accept="image/*">
+                  <button id="change-profile-btn" type="button" class="btn btn-sm btn-secondary">Change Logo</button>
+              </div>
+            </div>
+
+            
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
@@ -620,83 +739,13 @@
     </div>
 </div>
 
-  
-<div class="col-md-4">
-  <div class="modal fade" id="add-service-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
-    <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h6 class="modal-title" id="modal-title-notification">Add service to event:</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <form method="POST" id="add-service-form" action="{% url 'add_service_to_event' %}">
-          {% csrf_token %}
 
-          <input type="hidden" name="service_id" value="{{service.id }}">
 
-          <div class="modal-body">
 
-            <div class="form-group">
-              <label for="exampleFormControlSelect1">Please select an event:</label>
-              <select class="form-control" id="event_select" name="event_id">
-                <option>.............</option>
-                <option></option>
-              </select>
-            </div>
 
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-white">Ok, Got it</button>
-            <button type="button" class="btn btn-danger text-white ml-auto" data-bs-dismiss="modal">Close</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 <!-- Modal -->
-<div class="modal fade" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="exampleModalMessageTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">New message to @{{ service.provider.name }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <form method="POST" action="{% url 'inquire_service' %}">
-            {% csrf_token %}
-            <div class="modal-body">
-
-
-                <input type="hidden" name="provider" value="{{ service.provider.id }}">
-                <div class="form-group">
-                    <label for="recipient-name" class="col-form-label">Service:</label>
-                    <input type="text" class="form-control" name="service" value="{{ service.name }}" id="service" disabled>
-                </div>
-                <div class="form-group">
-                    <label for="message-text" class="col-form-label">Message:</label>
-                    <textarea class="form-control" name="message" rows="3" id="message-text">Hi, I'm interested in your {{ service.name }} service.
-                    </textarea>
-                </div>
-            
-            </div>
-            <div class="modal-footer">
-
-            <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn bg-gradient-info">Send message</button>
-
-            </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
 
 
 
@@ -704,14 +753,153 @@
   {% include 'includes/scripts.html' %}
 
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch events from the server
+        fetch('/fetch-events/')
+            .then(response => response.json())
+            .then(data => {
+                const selectElement = document.getElementById('event_select');
+                const events = data.events;
+  
+                // Clear existing options except the placeholder
+                selectElement.innerHTML = '<option value="">.............</option>';
+  
+                // Populate the dropdown with event options
+                events.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.id;
+                    option.textContent = `${event.title} (${event.event_date})`;
+                    selectElement.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching events:', error);
+            });
+    });
+  </script>
+
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('add-service-form'); // Replace with your form's ID
+  
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+  
+            const formData = new FormData(form);
+  
+            fetch('/add-service-to-event/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Service added to event successfully') {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 500,  // Set timer duration (2000ms = 2 seconds)
+                        timerProgressBar: true,  // Show the progress bar
+                        showConfirmButton: false  // Remove the OK button
+  
+                    }).then(() => {
+                        window.location.href = '/customer/added-service/';
+                    });
+                } else {
+                    Swal.fire({
+                        text: data.message,
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An unexpected error occurred.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                console.error('Error:', error);
+            });
+        });
+    });
+  </script>
+  
+<script>
+  // For Add Service to Event modal
+var addServiceModal = document.getElementById('add-service-event');
+addServiceModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;  // Button that triggered the modal
+    var serviceId = button.getAttribute('data-service-id');  // Extract the service ID
+    var providerId = button.getAttribute('data-provider-id');  // Extract the provider ID
+
+    // Find the input fields in the modal and set their values
+    var modalServiceInput = addServiceModal.querySelector('#service_id');
+    var modalProviderInput = addServiceModal.querySelector('#provider_id');
+
+    modalServiceInput.value = serviceId;
+    modalProviderInput.value = providerId;
+});
+
+// For Inquire Service modal
+var inquireServiceModal = document.getElementById('modal-message');
+inquireServiceModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;  // Button that triggered the modal
+    var serviceId = button.getAttribute('data-service-id');  // Extract the service ID
+    var providerId = button.getAttribute('data-provider-id');  // Extract the provider ID
+    var serviceName = button.getAttribute('data-service-name');  // Extract the service name
+
+    // Find the input fields in the modal and set their values
+    var modalServiceInput = inquireServiceModal.querySelector('#service_id_message');
+    var modalProviderInput = inquireServiceModal.querySelector('#provider_id_message');
+    var modalServiceNameInput = inquireServiceModal.querySelector('#service_name_message');
+
+    modalServiceInput.value = serviceId;
+    modalProviderInput.value = providerId;
+    modalServiceNameInput.value = serviceName;
+});
+
+</script>
+  <script>
+    document.getElementById('change-profile-btn').addEventListener('click', function() {
+      document.getElementById('file-input').click(); // Trigger the file input click
+  });
+  
+  // Preview the selected image
+  document.getElementById('file-input').addEventListener('change', function(event) {
+      const file = event.target.files[0]; // Get the selected file
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              document.getElementById('profile-pic').src = e.target.result; // Show the preview
+          };
+          reader.readAsDataURL(file); // Read the file as data URL
+      }
+  });
+  
+  
+  </script>
+
+  
+  <script>
     $('#update_information_form').on('submit', function(e) {
         e.preventDefault();
         var form = $(this);
         
+        // Create a FormData object
+        var formData = new FormData(form[0]);
+        
         $.ajax({
             type: form.attr('method'),
             url: form.attr('action'),
-            data: form.serialize(),
+            data: formData,
+            processData: false,  // Important
+            contentType: false,  // Important
             success: function(response) {
                 Swal.fire({
                     icon: 'success',
@@ -723,7 +911,6 @@
                 });
             },
             error: function(xhr) {
-                // Check if xhr.responseJSON is defined
                 var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An unknown error occurred.';
                 
                 Swal.fire({
@@ -735,6 +922,7 @@
         });
     });
 </script>
+
 
 
 
