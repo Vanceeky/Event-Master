@@ -26,7 +26,8 @@ class GroupMessage(models.Model):
     body = models.CharField(max_length=512, null=True, blank = True)
     file = models.FileField(upload_to='group_messages', null = True, blank = True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    is_seen = models.BooleanField(default=False)  # New field to track seen status
+    
     @property
     def filename(self):
         if self.file:

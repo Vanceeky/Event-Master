@@ -87,6 +87,7 @@ def update_service_provider(request):
             contact_number = request.POST.get('contact_number')
             address = request.POST.get('address')
             bio = request.POST.get('bio')
+            logo = request.FILES.get('logo')
 
             print(f"Provider ID: {provider_id}, Firstname: {firstname}, Email: {email}")  # Debugging line
             user = User.objects.get(id=provider_id)
@@ -105,6 +106,8 @@ def update_service_provider(request):
             provider.contact_number = contact_number
             provider.desc = bio
             provider.address = address
+            
+            provider.logo = logo
 
             user.save()
             provider.save()

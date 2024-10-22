@@ -53,7 +53,12 @@
           overflow-y: scroll;
       }
       
-
+      .new-message {
+        background-color: #f0f8ff; /* Light blue background */
+        border-left: 4px solid #007bff; /* Blue left border */
+        animation: pulse 1s infinite; /* Optional pulse animation */
+        font-weight: bold;
+    }
 
 
 
@@ -83,27 +88,30 @@
                                     <h6>Inbox</h6>
                                 </div>
                                 <div class="card-body p-2 chat-groups">
-                                    {% for info in groups_info %}
+                                    {% for info in groups_info reversed %}
                                         <div class="group">
-                                            {% for member in info.other_members %}
-                                                <a href="{% url 'chatroom' info.group.group_name%}" 
-                                                class="d-flex p-2 member border-bottom" 
-                                                data-group-id="{{ info.group.id }}" 
-                                                data-group-name="{{ info.group.group_name }}">
-                                                    <img alt="Image" src="/static/images/default-avatar.png" class="avatar shadow">
-                                                    <div class="ms-3">
-                                                        {% for member in info.other_members %}
-                                                        <h6 class="mb-0 text-capitalize">{{ member.first_name }} {{ member.last_name }}</h6>
-                                                        {% endfor %}
-                                                        <p class="text-muted text-xs mb-2">{{ info.last_message }}</p>
-                                                    </div>
-                                                </a>
-                                            {% endfor %}
+                                            <a href="{% url 'chatroom' info.group.group_name %}" 
+                                               class="d-flex p-2 member border-bottom {% if not info.last_message_is_seen %} new-message {% endif %}" 
+                                               data-group-id="{{ info.group.id }}" 
+                                               data-group-name="{{ info.group.group_name }}">
+                                               {% if info.other_members %}
+                                               <img src="{{ info.other_members.0.avatar }}" alt="{{ info.other_members.0.username }}'s avatar" class="avatar">
+                                                {% else %}
+                                                    <img src="/static/images/default-avatar.png" alt="Default avatar" class="avatar">
+                                                {% endif %}
+                                                <div class="ms-3">
+                                                    {% for member in info.other_members %}
+                                                    <h6 class="mb-0 text-capitalize">{{ member.first_name }} {{ member.last_name }}</h6> <!-- Change to username or the appropriate field -->
+                                                    {% endfor %}
+                                                    <p class="text-sm mb-2 {% if not info.last_message_is_seen %} font-weight-bold {% else %} text-muted {% endif %}">{{ info.last_message }}</p>
+                                                </div>
+                                            </a>
                                         </div>
                                     {% empty %}
                                         <li>No private chat found.</li>
                                     {% endfor %}
                                 </div>
+                                
                             </div>
                         </div>
             
