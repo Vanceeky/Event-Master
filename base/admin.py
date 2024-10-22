@@ -25,7 +25,7 @@ class ServiceImageInline(admin.TabularInline):
 class RatingInline(admin.TabularInline):
     model = Rating
     extra = 1
-    fields = ('author', 'score', 'created_at')
+    fields = ('author', 'score', 'content', 'created_at')
     readonly_fields = ('created_at',)
 
 @admin.register(Service)

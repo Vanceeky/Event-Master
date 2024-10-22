@@ -152,7 +152,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                   <a href="javascript:;">
-                    <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                    <i class="fas fa-user-edit text-secondary text-sm" data-bs-toggle="modal" data-bs-target="#update-information"
                       aria-hidden="true" aria-label="Edit Profile" data-bs-original-title="Edit Profile"></i><span
                       class="sr-only">Edit Profile</span>
                   </a>
@@ -412,11 +412,11 @@
                                     <img alt="Image placeholder" class="avatar rounded-circle me-3" src="/static/images/default-avatar.png">
                                 </div>
                                 <div class="flex-grow-1 my-auto">
-                                    <form class="commentForm" action="{% url 'add_comment_post' %}" method="POST">
+                                    <form class="commentForm" action="{% url 'add_comment_post' %}" method="POST" onsubmit="return validateComment()">
                                         {% csrf_token %}
                                         <input type="hidden" value="{{ post.id }}" name="post_id">
                                         <div class="form-group">
-                                            <textarea class="form-control" name="comment" id="exampleFormControlTextarea1" placeholder="Write your comment here..." rows="3"></textarea>
+                                            <textarea class="form-control" name="comment" id="comment_box" required placeholder="Write your comment here..." rows="3"></textarea>
                                         </div>
                                         <button type="submit" class="btn btn-sm bg-gradient-info">Post Comment</button>
                                     </form>
@@ -486,62 +486,7 @@
 
   <!-- MODALS -->
 
-  <div class="modal fade" id="modal-add-service" tabindex="-1" role="dialog" aria-labelledby="modal-default"
-    aria-hidden="true">
-    <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h6 class="modal-title" id="modal-title-default">
-            Add new Service
-          </h6>
-
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <form id="serviceForm" method="POST" action="{% url 'create_service' %}">
-          {% csrf_token %}
-          <div class="modal-body">
-            <input type="hidden" name="provider_id" value="{{ provider.id }}" />
-            <input type="hidden" name="user_id" value="{{ request.user.id }}"/>
-            <div class="form-group">
-              <label for="exampleFormControlInput1">Service Name:</label>
-              <input type="text" class="form-control" name="service_name" required placeholder="Service..." />
-            </div>
-
-            <div class="form-group">
-              <label for="example-number-input" class="form-control-label">Price:</label>
-              <input class="form-control" type="number" name="price" required placeholder="5000"
-                id="example-number-input" />
-            </div>
-
-            <div class="form-group">
-              <label for="exampleFormControlTextarea1">Description:</label>
-              <textarea class="form-control" name="description" required id="exampleFormControlTextarea1"
-                rows="2"></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="exampleFormControlTextarea2">Inclusions:</label>
-              <textarea class="form-control" name="inclusions" required id="exampleFormControlTextarea2"
-                rows="2"></textarea>
-              <small class="form-text text-muted">Please separate each inclusion with a comma.</small>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="submit" class="btn bg-gradient-primary">
-              Save changes
-            </button>
-            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">
-              Close
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  {% include 'base/provider/modals.html' %}
 
   <!-- Modal HTML -->
   <div class="modal fade" id="update-service" tabindex="-1" role="dialog" aria-labelledby="modal-default"
@@ -592,55 +537,88 @@
   </div>
 
 
-  <div class="modal fade" id="modal-add-post" tabindex="-1" role="dialog" aria-labelledby="modal-default"
+><!-- MODAL UPDATE INFORMATION -->
+
+  <!-- Modal HTML -->
+  <div class="modal fade" id="update-information" tabindex="-1" role="dialog" aria-labelledby="modal-default"
     aria-hidden="true">
-    <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h6 class="modal-title" id="modal-title-default">
-            Create new Post
-          </h6>
+          <h6 class="modal-title" id="modal-title-default">Update Information</h6>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <form id="createPostForm" id="createPostForm" method="POST" action="{% url 'create_post' %}"
-          enctype="multipart/form-data">
+
+        <form id="update_information_form" action="{% url 'update-provider' %}" method="POST">
+          {% csrf_token %}
           <div class="modal-body">
-            {% csrf_token %}
-            <input type="hidden" name="provider_id" value="{{ provider.id }}" />
-            
-            <input type="hidden" name="user_id" value="{{ request.user.id }}"/>
 
-            <div class="form-group">
-              <label for="postTitle">Title:</label>
-              <input type="text" class="form-control" name="post_title" id="postTitle" required placeholder="" />
-            </div>
+            <input type="text" value="{{ provider.user.id }}" name="provider_id">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="service_name">FirstName:</label>
+                  <input type="text" class="form-control" name="firstname" value="{{ provider.user.first_name }}" required />
+                </div>
 
-            <div class="form-group">
-              <label for="exampleFormControlTextarea1">Caption: </label>
-              <textarea class="form-control" name="description" id="editor" rows="3"></textarea>
-            </div>
+              </div>
 
-            <div class="form-group">
-              <label for="postImages">Images:</label>
-              <input type="file" class="form-control" name="post_images" id="postImages" multiple />
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="service_name">LastName:</label>
+                  <input type="text" class="form-control" name="lastname" value="{{ provider.user.last_name }}" required />
+                </div>
+
+              </div>
+
+
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="service_name">Contact Number:</label>
+                  <input type="text" class="form-control" name="contact_number"  value="{{ provider.contact_number }}" required placeholder="Service..." />
+                </div>
+              </div>
+  
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label for="service_name">Email:</label>
+                  <input type="text" class="form-control" name="email" value="{{ provider.user.email }}" required placeholder="Service..." />
+                </div>
+              </div>
+
+
+
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="service_name">Address:</label>
+                  <input type="text" class="form-control" name="address" value="{{ provider.address }}" required placeholder="Service..." />
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="form-group">
+                  <label for="exampleFormControlTextarea1">Bio:</label>
+                  <textarea class="form-control" id="exampleFormControlTextarea1" name="bio" rows="1">{{ provider.desc}}</textarea>
+                </div>
+
+              </div>
+
+
+
+
+
             </div>
-          </div>
 
           <div class="modal-footer">
-            <button type="submit" class="btn bg-gradient-primary">
-              Save post
-            </button>
-            <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">
-              Close
-            </button>
+            <button type="submit" class="btn bg-gradient-info">Save changes</button>
           </div>
         </form>
       </div>
     </div>
-  </div>
-
+</div>
 
   
 <div class="col-md-4">
@@ -726,6 +704,41 @@
   {% include 'includes/scripts.html' %}
 
   <script>
+    $('#update_information_form').on('submit', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        
+        $.ajax({
+            type: form.attr('method'),
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                    showConfirmButton: true,
+                }).then(function() {
+                    location.reload();  // Reload the page after success
+                });
+            },
+            error: function(xhr) {
+                // Check if xhr.responseJSON is defined
+                var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An unknown error occurred.';
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: errorMessage,
+                });
+            }
+        });
+    });
+</script>
+
+
+
+  <script>
       document.addEventListener('DOMContentLoaded', function() {
       
         const toggleButtons = document.querySelectorAll('.toggle-comments-btn');
@@ -771,16 +784,6 @@
 </script>
 
 
-  <script>
-    ClassicEditor.create(document.querySelector("#editor"))
-
-      .then((editor) => {
-        console.log(editor);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  </script>
 
 
   <script>
@@ -849,7 +852,7 @@
     document
       .getElementById("createPostForm")
       .addEventListener("submit", function (event) {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
 
         const form = event.target;
         const formData = new FormData(form);
@@ -858,8 +861,8 @@
           method: "POST",
           body: formData,
           headers: {
-            "X-Requested-With": "XMLHttpRequest", // This header is optional but useful for Django to recognize AJAX requests
-            "X-CSRFToken": formData.get("csrfmiddlewaretoken"), // Include CSRF token in the request headers
+            "X-Requested-With": "XMLHttpRequest", 
+            "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
           },
         })
           .then((response) => response.json())
@@ -869,7 +872,7 @@
                 title: "Success!",
                 text: data.message,
                 icon: "success",
-                timer: 1000, // Time in milliseconds (2000ms = 2 seconds)
+                timer: 1000, 
                 timerProgressBar: true,
                 confirmButton: false,
 
@@ -903,12 +906,12 @@
   </script>
 
   <script>
-    // JavaScript to populate the modal with service data
+
     document.addEventListener('DOMContentLoaded', function () {
-      // Attach event listener to each "Update" button
+
       document.querySelectorAll('.update-button').forEach(button => {
         button.addEventListener('click', function () {
-          // Get the service data from the button's data attributes
+  
           const serviceId = this.getAttribute('data-service-id');
           const serviceName = this.getAttribute('data-service-name');
           const servicePrice = this.getAttribute('data-service-price');
@@ -916,16 +919,16 @@
           const serviceInclusions = this.getAttribute('data-service-inclusions');
           const providerId = this.getAttribute('data-provider-id');
 
-          // Populate the modal fields
+     
           document.getElementById('provider_id').value = providerId;
           document.getElementById('service_name').value = serviceName;
           document.getElementById('price').value = servicePrice;
           document.getElementById('description').textContent = serviceDescription;
           document.getElementById('inclusions').textContent = serviceInclusions;
           
-          // Set the form action to the correct URL if needed
+     
           const form = document.getElementById('update_serviceForm');
-          form.action = `/update-service/${serviceId}/`; // Example URL pattern
+          form.action = `/update-service/${serviceId}/`;
         });
         
       });
@@ -943,8 +946,13 @@
 
             var form = $(this);
             var postId = form.find('input[name="post_id"]').val(); 
+            var comment = form.find('textarea[name="comment"]').val().trim(); 
             var commentsSection = $('#comments-' + postId);
-
+       
+              if (comment === "") {
+                alert("Comment cannot be empty or just spaces.");
+                return;  
+            }
             $.ajax({
                 type: 'POST',
                 url: form.attr('action'), 

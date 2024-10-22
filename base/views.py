@@ -8,7 +8,8 @@ from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
 from chat.models import ChatGroup, GroupMessage
-
+from django.db.models import Avg, Count
+from django.db import IntegrityError
 
 def index(request):
     service_providers = ServiceProvider.objects.all()[:5]
@@ -74,6 +75,52 @@ def service_provider(request, provider_id):
 
     return render(request, 'base/provider/home.html', context)
 
+def update_service_provider(request):
+    if request.method == 'POST':
+        try:
+            print("Request received")  # Debugging line
+
+            provider_id = request.POST.get('provider_id')
+            firstname = request.POST.get('firstname')
+            lastname = request.POST.get('lastname')
+            email = request.POST.get('email')
+            contact_number = request.POST.get('contact_number')
+            address = request.POST.get('address')
+            bio = request.POST.get('bio')
+
+            print(f"Provider ID: {provider_id}, Firstname: {firstname}, Email: {email}")  # Debugging line
+            user = User.objects.get(id=provider_id)
+            provider = get_object_or_404(ServiceProvider, user = user)
+   
+
+            current_email = user.email
+            if current_email != email:
+                if User.objects.filter(email=email).exclude(id=user.id).exists():
+                    return JsonResponse({'message': 'The email is already associated with another account. Please use a different email.'}, status=400)
+                user.email = email
+                user.username = email  # Update username to the new email
+
+            user.first_name = firstname
+            user.last_name = lastname
+            provider.contact_number = contact_number
+            provider.desc = bio
+            provider.address = address
+
+            user.save()
+            provider.save()
+
+            return JsonResponse({'message': 'Service provider updated successfully'})
+
+        except IntegrityError as e:
+            print(f"IntegrityError: {e}")  # Debugging line
+            return JsonResponse({'message': 'Database integrity error. Please try again.'}, status=400)
+        except Exception as e:
+            print(f"Error updating provider: {e}")  # Debugging line
+            return JsonResponse({'message': 'Failed to update service provider. Please try again.'}, status=500)
+
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
+
 
 def create_service(request):
     if request.method == 'POST':
@@ -82,7 +129,7 @@ def create_service(request):
         price = request.POST.get('price')
         description = request.POST.get('description')
         inclusions = request.POST.get('inclusions')
-
+        images = request.FILES.getlist('images')  # Retrieve multiple uploaded images
 
         if not all([provider_id, service_name, price, description, inclusions]):
             return JsonResponse({'message': 'All fields are required.'}, status=400)
@@ -91,13 +138,22 @@ def create_service(request):
         provider = get_object_or_404(ServiceProvider, id=provider_id)
 
         try:
-            Service.objects.create(
+            # Create the service instance
+            service = Service.objects.create(
                 provider=provider,
                 name=service_name,
                 price=price,
                 description=description,
                 inclusions=inclusions
             )
+
+            # Process each uploaded image and associate it with the service
+            for image in images:
+                ServiceImage.objects.create(
+                    service=service,
+                    image=image
+                )
+
             return JsonResponse({'message': 'Service created successfully'})
         except Exception as e:
             return JsonResponse({'message': f'Error creating service: {str(e)}'}, status=500)
@@ -191,11 +247,44 @@ def service_details(request, service_id):
 
     related_services = Service.objects.filter(category=category).exclude(id=service_id)
 
+    reviews = service.ratings.all()
+
+    average = service.average_rating()
+
+    rating_counts = service.rating_summary()
+    # Calculate the total number of reviews
+    total_reviews = (
+        rating_counts['excellent'] +
+        rating_counts['good'] +
+        rating_counts['average'] +
+        rating_counts['poor'] +
+        rating_counts['terrible']
+    )
+
+        # Calculate percentages for each rating
+    if total_reviews > 0:
+        percentages = {
+            'excellent': (rating_counts['excellent'] / total_reviews) * 100,
+            'good': (rating_counts['good'] / total_reviews) * 100,
+            'average': (rating_counts['average'] / total_reviews) * 100,
+            'poor': (rating_counts['poor'] / total_reviews) * 100,
+            'terrible': (rating_counts['terrible'] / total_reviews) * 100,
+        }
+    else:
+        percentages = {key: 0 for key in rating_counts.keys()}
+
+    # Context
     context = {
         'service': service,
         'images': images,
-        'services': related_services
+        'services': related_services,
+        'average': average,
+        'rating_counts': rating_counts,
+        'total_reviews': total_reviews,  # A
+        'percentages': percentages,
+        'reviews': reviews
     }
+
 
     return render(request, 'base/service_details.html', context)
 
@@ -245,6 +334,63 @@ def customer_account(request):
 
 
     return render(request, 'base/customer/account.html', context)
+
+def update_customer_profile(request):
+    if request.method == "POST":
+        try:
+            customer_id = request.POST.get('customer_id')
+            first_name = request.POST.get('firstname')
+            last_name = request.POST.get('lastname')
+            email = request.POST.get('email')
+            contact_number = request.POST.get('contact_number')
+            address = request.POST.get('address')
+            avatar = request.FILES.get('avatar')
+
+            print(f"Received avatar: {avatar}")  # Debugging line
+
+            user = User.objects.get(id=customer_id)
+            customer = Customer.objects.get(user=user)
+
+            # Update user information
+            customer.user.first_name = first_name
+            customer.user.last_name = last_name
+            customer.phone_number = contact_number
+            customer.address = address
+
+            current_email = customer.user.email
+
+            if email != current_email:
+                if User.objects.filter(email=email).exclude(id=user.id).exists():
+                    return JsonResponse({'message': 'The email is already associated with another account. Please use a different email.'}, status=400)
+
+                customer.user.email = email
+                customer.user.username = email
+
+            # Check and save the avatar
+            if avatar:
+                print(f"Avatar file: {avatar.name}")  # Debugging line
+                customer.avatar = avatar  # Update the avatar
+
+            # Save the user and customer
+            customer.user.save()
+            customer.save()
+
+            return JsonResponse({'message': 'User information updated successfully'})
+
+        except IntegrityError as e:
+            print(f"IntegrityError: {e}")  # Debugging line
+            return JsonResponse({'message': 'Database integrity error. Please try again.'}, status=400)
+        except Exception as e:
+            print(f"Error updating provider: {e}")  # Debugging line
+            return JsonResponse({'message': 'Failed to update information. Please try again.'}, status=500)
+
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
+
+
+
+
+
 
 def fetch_events(request):
     customer = Customer.objects.get(user=request.user)
@@ -365,7 +511,7 @@ def providers(request):
 def add_comment_post(request):
     if request.method == 'POST':
         post_id = request.POST.get('post_id')
-        comment_content = request.POST.get('comment')
+        comment_content = request.POST.get('comment').strip()
         
         post = get_object_or_404(ServicePost, id=post_id)
 
@@ -521,3 +667,27 @@ def cancel_booking_request(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request.'})
 
+
+
+
+
+def add_rating(request):
+    if request.method == 'POST':
+        service_id = request.POST.get('service')
+        rating = request.POST.get('rating')
+        content = request.POST.get('content')
+
+        service = get_object_or_404(Service, id=service_id)
+
+        rating = Rating.objects.create(
+            post = service,
+            author = request.user,
+            score = rating,
+            content = content
+        )
+
+        rating.save()
+
+        return JsonResponse({'message': 'Rating added successfully'})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

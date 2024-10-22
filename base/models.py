@@ -47,6 +47,35 @@ class Service(models.Model):
     def __str__(self):
         return self.name
     
+    def average_rating(self):
+        ratings = self.ratings.all()
+        if ratings.exists():
+            total_score = sum(rating.score for rating in ratings)
+            return total_score / ratings.count()
+        return 0  # Return 0 if there are no ratings
+
+    def rating_summary(self):
+        rating_counts = {
+            'excellent': 0,
+            'good': 0,
+            'average': 0,
+            'poor': 0,
+            'terrible': 0,
+        }
+        for rating in self.ratings.all():
+            if rating.score == 5:
+                rating_counts['excellent'] += 1
+            elif rating.score == 4:
+                rating_counts['good'] += 1
+            elif rating.score == 3:
+                rating_counts['average'] += 1
+            elif rating.score == 2:
+                rating_counts['poor'] += 1
+            elif rating.score == 1:
+                rating_counts['terrible'] += 1
+
+        return rating_counts
+    
 class ServiceImage(models.Model):
 
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='images')
@@ -88,6 +117,7 @@ class Rating(models.Model):
     post = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='ratings')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
     score = models.IntegerField()  # Consider a range, e.g., 1-5
+    content = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

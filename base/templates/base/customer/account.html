@@ -18,23 +18,21 @@
               background-position-y: 50%;
             "></div>
         <div class="card card-body blur mx-4 mt-n9 overflow-hidden">
-          <form class="row gx-4" method="POST">
-            
+          <form id="update-customer-form" class="row gx-4" method="POST" action="{% url 'update-customer-information' %}" enctype="multipart/form-data">
+            <input type="hidden" value="{{ customer.user.id }}" name="customer_id">
             {% csrf_token %}
               <div class="col-md-3 z-index-1  ">
                 <div class="section ">
                   <section class="z-index-1  text-center">
-                      <div class="fileinput fileinput-new text-center" data-provides="fileinput">
-                            <div id="profile-pic-container" class="mb-3">
-                                <img id="profile-pic" src="{{ customer.avatar.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
-                            </div>
-                            <div class="mb-3">
-                                <input type="file" id="file-input" name="avatar" class="d-none" accept="image/*">
-                                <button id="change-profile-btn" class="btn btn-sm btn-secondary">Change Profile</button>
-                                
-                            </div>
-        
+                    <div class="fileinput fileinput-new text-center" data-provides="fileinput">
+                      <div id="profile-pic-container" class="mb-3">
+                          <img id="profile-pic" src="{{ customer.avatar.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
                       </div>
+                      <div class="mb-3">
+                          <input type="file" id="file-input" name="avatar" class="d-none" accept="image/*">
+                          <button id="change-profile-btn" type="button" class="btn btn-sm btn-secondary">Change Profile</button>
+                      </div>
+                    </div>
                       <h3 class="title mt-4 text-capitalize">{{ patient.user.first_name }} {{ patient.user.last_name }} </h3>
                   </section>
         
@@ -50,22 +48,22 @@
                       <div class="col-md-6">
                         <div class="form-group">
                         <label for="example-text-input" class="form-control-label">Firstname</label>
-                        <input class="form-control" type="text" value="{{ customer.user.first_name }}">
+                        <input class="form-control" type="text" name="firstname" value="{{ customer.user.first_name }}">
                         </div>
                       </div>
 
                       <div class="col-md-6">
                         <div class="form-group">
                         <label for="example-text-input" class="form-control-label">Lastname</label>
-                        <input class="form-control" type="text" value="{{ customer.user.last_name }}">
+                        <input class="form-control" type="text" name="lastname" value="{{ customer.user.last_name }}">
                         </div>
                       </div>
 
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="example-text-input" class="form-control-label">Email address</label>
-                                <input class="form-control" type="email" value="{{ customer.user.email }}">
+                                <label for="example-text-input"  class="form-control-label">Email address</label>
+                                <input class="form-control" type="email" name="email" value="{{ customer.user.email }}">
                             </div>
                         </div>
 
@@ -78,13 +76,13 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                 <label for="example-text-input" class="form-control-label">Contact Number</label>
-                                <input class="form-control" type="text" value="{{ customer.phone_number }}">
+                                <input class="form-control" type="text" name="contact_number" value="{{ customer.phone_number }}">
                                 </div>
                             </div>
                         <div class="col-md-8">
                             <div class="form-group">
                                 <label for="example-text-input" class="form-control-label">Address</label>
-                                <input class="form-control" type="text" value="{{ customer.address }}">
+                                <input class="form-control" type="text" name="address" value="{{ customer.address }}">
                             </div>
                         </div>
 
@@ -362,21 +360,60 @@
 
 {% block js %}
 
+
+<script>
+  $('#update-customer-form').on('submit', function(e) {
+    e.preventDefault(); // Prevent the default form submission
+    var form = $(this);
+    var formData = new FormData(this); // Create FormData object to include file input
+
+    $.ajax({
+        type: form.attr('method'),
+        url: form.attr('action'),
+        data: formData,
+        contentType: false, // Important for file uploads
+        processData: false, // Important for file uploads
+        success: function(response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: response.message,
+                showConfirmButton: true,
+
+            }).then(function() {
+                location.reload();  // Reload the page after success
+            });
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong! ' + xhr.responseJSON.message,
+            });
+        }
+    });
+});
+
+</script>
+
 <script>
   document.getElementById('change-profile-btn').addEventListener('click', function() {
-      document.getElementById('file-input').click();
-  });
+    document.getElementById('file-input').click(); // Trigger the file input click
+});
 
-  document.getElementById('file-input').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-              document.getElementById('profile-pic').src = e.target.result;
-          };
-          reader.readAsDataURL(file);
-      }
-  });
+// Preview the selected image
+document.getElementById('file-input').addEventListener('change', function(event) {
+    const file = event.target.files[0]; // Get the selected file
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profile-pic').src = e.target.result; // Show the preview
+        };
+        reader.readAsDataURL(file); // Read the file as data URL
+    }
+});
+
+
 </script>
 
 <script>

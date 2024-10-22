@@ -13,21 +13,22 @@
         </div>
 
         <div class="card-body">
-          <form role="form text-left" method="POST" action="{% url 'register-customer' %}">
+          <form role="form text-left" method="POST" action="{% url 'register-customer' %}" id="passwordForm"  onsubmit="return validatePassword()">
             {% csrf_token %}
             <div class="mb-3">
-                <input type="text" name="firstname" class="form-control" placeholder="Firstname" aria-label="Email" aria-describedby="email-addon">
+                <input type="text" name="firstname" class="form-control" placeholder="Firstname" aria-label="Email" aria-describedby="email-addon" required>
               </div>
 
               <div class="mb-3">
-                <input type="text" name="lastname" class="form-control" placeholder="Lastname" aria-label="Email" aria-describedby="email-addon">
+                <input type="text" name="lastname" class="form-control" placeholder="Lastname" aria-label="Email" aria-describedby="email-addon" required>
               </div>
             <div class="mb-3">
-              <input type="email" name="email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-addon">
+              <input type="email" name="email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-addon" required>
             </div>
-            <div class="mb-3">
-              <input type="password" name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon">
+            <div class="">
+              <input type="password" id="password" name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" required>
             </div>
+            <div id="passwordFeedback" class="mt-2"></div> <!-- Div for live feedback -->
 
             <div class="text-center">
               <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Register Account</button>
@@ -38,5 +39,83 @@
       </div>
     </div>
 </div>
+<script>
+  // Real-time password validation
+  document.getElementById('password').addEventListener('input', function() {
+      var password = this.value;
+      var feedback = document.getElementById('passwordFeedback');
+      var passwordValid = true; // Default password valid
+
+      // Define regex for password criteria
+      var lengthCheck = /.{8,}/;
+      var uppercaseCheck = /[A-Z]/;
+      var lowercaseCheck = /[a-z]/;
+      var numberCheck = /\d/;
+      var specialCharCheck = /[@$!%*?&_]/;
+
+      var feedbackText = '';
+
+      // Check password length
+      if (!lengthCheck.test(password)) {
+          feedbackText += '<p class="text-xs" style="color:red;">Password must be at least 8 characters long.</p>';
+          passwordValid = false;
+      } else {
+          feedbackText += '<p class="text-xs" style="color:green;">Length: ✓</p>';
+      }
+
+      // Check for uppercase letter
+      if (!uppercaseCheck.test(password)) {
+          feedbackText += '<p class="text-xs" style="color:red;">Password must contain at least one uppercase letter.</p>';
+          passwordValid = false;
+      } else {
+          feedbackText += '<p class="text-xs" style="color:green;">Uppercase: ✓</p>';
+      }
+
+      // Check for lowercase letter
+      if (!lowercaseCheck.test(password)) {
+          feedbackText += '<p class="text-xs" style="color:red;">Password must contain at least one lowercase letter.</p>';
+          passwordValid = false;
+      } else {
+          feedbackText += '<p class="text-xs" style="color:green;">Lowercase: ✓</p>';
+      }
+
+      // Check for number
+      if (!numberCheck.test(password)) {
+          feedbackText += '<p class="text-xs" style="color:red;">Password must contain at least one number.</p>';
+          passwordValid = false;
+      } else {
+          feedbackText += '<p class="text-xs" style="color:green;">Number: ✓</p>';
+      }
+
+      // Check for special character
+      if (!specialCharCheck.test(password)) {
+          feedbackText += '<p class="text-xs" style="color:red;">Password must contain at least one special character (@$!%*?&_).</p>';
+          passwordValid = false;
+      } else {
+          feedbackText += '<p class="text-xs" style="color:green;">Special character: ✓</p>';
+      }
+
+      feedback.innerHTML = feedbackText;
+
+      // Set a data attribute on the input field to track validity
+      this.setAttribute('data-valid', passwordValid);
+  });
+
+  // Final validation on form submission
+  function validatePassword() {
+      var passwordField = document.getElementById('password');
+      var isValid = passwordField.getAttribute('data-valid') === 'true';
+
+      if (!isValid) {
+          alert('Password does not meet the requirements.');
+          return false;  // Prevent form submission
+      }
+
+      return true;  // Allow form submission if valid
+  }
+</script>
+
+
 
 {% endblock %}
+
