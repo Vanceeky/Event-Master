@@ -17,8 +17,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-  <link rel="apple-touch-icon" sizes="76x76" href="/static/assets/img/apple-icon.png" />
-  <link rel="icon" type="image/png" href="/static/assets/img/favicon.png" />
+  <link rel="apple-touch-icon" sizes="76x76" href="/static/images/event_master_logo.png" />
+  <link rel="icon" type="image/png" href="/static/images/event_master_logo.png" />
 
   <title>Service Provider | slug | Event Master</title>
 
@@ -263,14 +263,19 @@
                               <div class="card-footer bg-transparent">
 
                                 {% if request.user.id == provider.user.id %}
-                                <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
-                                data-service-name="{{ service.name }}"
-                                data-service-price="{{ service.price }}"
-                                data-service-description="{{ service.description }}"
-                                data-service-inclusions="{{ service.inclusions }}"
-                                data-provider-id="{{ provider.id }}">
-                                  Update Service
-                                </a>
+                                  <a class="update-button" type="button" data-bs-toggle="modal" data-bs-target="#update-service" data-service-id="{{ service.id }}"
+                                  data-service-name="{{ service.name }}"
+                                  data-service-price="{{ service.price }}"
+                                  data-service-description="{{ service.description }}"
+                                  data-service-inclusions="{{ service.inclusions }}"
+                                  data-provider-id="{{ provider.id }}">
+                                    Update Service
+                                  </a>
+
+                                  <a href="{% url 'remove-service' service.id %}" class="remove-service-btn text-danger ms-3" type="button" data-service-id="{{ service.id }}">
+                                    Remove Service
+                                  </a>
+
                                 {% endif %}
 
                               </div>
@@ -384,7 +389,7 @@
 
               {% for post in service_posts reversed %}
                 <div class="card h-auto container mb-2">
-                    <div class="card-header d-flex align-items-center border-bottom py-3">
+                    <div class="card-header d-flex justify-content-between align-items-center border-bottom py-3">
                         <div class="d-flex align-items-center">
                             <a href="javascript:;">
                                 <img src="{{ post.created_by.logo.url }}" class="avatar" alt="profile-image">
@@ -393,6 +398,34 @@
                                 <a href="javascript:;" class="font-weight-bold text-md text-info">{{ post.created_by.name }}</a>
                                 <small class="d-block text-muted">Posted: {{ post.created_at|timesince }} ago</small>
                             </div>
+                        </div>
+
+                        <div class="">
+                          <div class="dropstart">
+                            <a href="javascript:;" class="text-secondary" id="dropdownMarketingCard" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+
+                            <ul class="dropdown-menu dropdown-menu-lg-start px-2 py-3" aria-labelledby="dropdownMarketingCard">
+
+                                <li>
+                                  <a class="dropdown-item border-radius-md" 
+                                    href="" 
+                                    data-event-id="{{ event.id }}">Update Post</a>
+                                </li>
+                                
+                                <li>
+                                  <a class="dropdown-item border-radius-md text-danger remove-post-btn" 
+                                  href="{% url 'remove-post' post.id %}" 
+                                  data-post-id="{{ post.id }}">Remove Post</a>
+                                </li>
+                          
+
+                                
+
+                            </ul>
+                          
+                          </div>
+
                         </div>
                     </div>
                     <div class="card-body">
@@ -523,7 +556,9 @@
 <!-- Modal -->
 
 
+{% include 'base/provider/modals.html' %}
 <!-- Add Service to Event Modal -->
+
 <div class="modal fade" id="add-service-event" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
   <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
       <div class="modal-content">
@@ -534,7 +569,7 @@
           <form method="POST" id="add-service-form" action="{% url 'add_service_to_event' %}">
               {% csrf_token %}
               
-              <!-- Hidden fields to populate -->
+           
               <input type="hidden" id="service_id" name="service_id">
               <input type="hidden" id="provider_id" name="provider_id">
 
@@ -543,7 +578,7 @@
                       <label for="exampleFormControlSelect1">Please select an event:</label>
                       <select class="form-control" id="event_select" name="event_id">
                           <option value="">.............</option>
-                          <!-- Add your event options here -->
+                         
                       </select>
                   </div>
               </div>
@@ -568,7 +603,7 @@
           <form method="POST" action="{% url 'inquire_service' %}">
               {% csrf_token %}
               
-              <!-- Hidden fields to populate -->
+         
               <input type="hidden" id="provider_id_message" name="provider">
               <input type="hidden" id="service_id_message" name="service_id">
 
@@ -607,10 +642,10 @@
           </button>
         </div>
 
-        <form id="update_serviceForm" method="POST" action="">
+        <form id="update_serviceForm" method="POST" action="{% url 'update-service' %}">
           {% csrf_token %}
           <div class="modal-body">
-            <input type="hidden" name="provider_id" id="provider_id" />
+            <input type="hidden" name="service_id" id="service_id_modal" />
             <input type="hidden" name="user_id" value="{{ request.user.id }}"/>
             <div class="form-group">
               <label for="service_name">Service Name:</label>
@@ -635,7 +670,7 @@
           </div>
 
           <div class="modal-footer">
-            <button type="submit" class="btn bg-gradient-primary">Save changes</button>
+            <button type="submit" id="save_changes" class="btn bg-gradient-primary">Save changes</button>
             <button type="button" class="btn btn-link ml-auto" data-bs-dismiss="modal">Close</button>
           </div>
         </form>
@@ -752,6 +787,177 @@
   <!--   Core JS Files   -->
   {% include 'includes/scripts.html' %}
 
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.remove-post-btn').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();  
+  
+          const url = this.getAttribute('href'); 
+  
+      
+          Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to remove this post?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+             
+              fetch(url, {
+                method: 'GET',  
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
+              })
+              .then(response => {
+                if (response.ok) {
+                  return response.json();  
+                } else {
+                  throw new Error('Failed to remove post');
+                }
+              })
+              .then(data => {
+        
+                Swal.fire({
+                  title: 'Removed!',
+                  text: 'The Post has been removed successfully.',
+                  icon: 'success',
+                  confirmButtonText: 'OK'
+                }).then(() => {
+               
+                  location.reload();
+                });
+              })
+              .catch(error => {
+                
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'There was an error removing the service.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+                });
+              });
+            }
+          });
+        });
+      });
+    });
+  </script>
+
+
+  <script>
+    document.getElementById('update_serviceForm').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent the default form submission
+
+        const formData = new FormData(this);  // Collect form data
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',  // Indicate AJAX request
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    title: 'Success!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                }).then(() => {
+                    location.reload();  // Reload the page after confirming
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while updating the service.',
+                icon: 'error',
+                confirmButtonText: 'Okay'
+            });
+        });
+    });
+</script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.remove-service-btn').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();  
+  
+          const url = this.getAttribute('href'); 
+  
+      
+          Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to remove this service?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+             
+              fetch(url, {
+                method: 'GET',  
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
+              })
+              .then(response => {
+                if (response.ok) {
+                  return response.json();  
+                } else {
+                  throw new Error('Failed to remove service');
+                }
+              })
+              .then(data => {
+        
+                Swal.fire({
+                  title: 'Removed!',
+                  text: 'The service has been removed successfully.',
+                  icon: 'success',
+                  confirmButtonText: 'OK'
+                }).then(() => {
+               
+                  location.reload();
+                });
+              })
+              .catch(error => {
+                
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'There was an error removing the service.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+                });
+              });
+            }
+          });
+        });
+      });
+    });
+  </script>
+
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Fetch events from the server
@@ -834,11 +1040,11 @@
   // For Add Service to Event modal
 var addServiceModal = document.getElementById('add-service-event');
 addServiceModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;  // Button that triggered the modal
-    var serviceId = button.getAttribute('data-service-id');  // Extract the service ID
-    var providerId = button.getAttribute('data-provider-id');  // Extract the provider ID
+    var button = event.relatedTarget; 
+    var serviceId = button.getAttribute('data-service-id');  
+    var providerId = button.getAttribute('data-provider-id');  
 
-    // Find the input fields in the modal and set their values
+  
     var modalServiceInput = addServiceModal.querySelector('#service_id');
     var modalProviderInput = addServiceModal.querySelector('#provider_id');
 
@@ -849,12 +1055,12 @@ addServiceModal.addEventListener('show.bs.modal', function (event) {
 // For Inquire Service modal
 var inquireServiceModal = document.getElementById('modal-message');
 inquireServiceModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;  // Button that triggered the modal
-    var serviceId = button.getAttribute('data-service-id');  // Extract the service ID
-    var providerId = button.getAttribute('data-provider-id');  // Extract the provider ID
-    var serviceName = button.getAttribute('data-service-name');  // Extract the service name
+    var button = event.relatedTarget;  
+    var serviceId = button.getAttribute('data-service-id');  
+    var providerId = button.getAttribute('data-provider-id');  
+    var serviceName = button.getAttribute('data-service-name');  
 
-    // Find the input fields in the modal and set their values
+
     var modalServiceInput = inquireServiceModal.querySelector('#service_id_message');
     var modalProviderInput = inquireServiceModal.querySelector('#provider_id_message');
     var modalServiceNameInput = inquireServiceModal.querySelector('#service_name_message');
@@ -865,6 +1071,7 @@ inquireServiceModal.addEventListener('show.bs.modal', function (event) {
 });
 
 </script>
+
   <script>
     document.getElementById('change-profile-btn').addEventListener('click', function() {
       document.getElementById('file-input').click(); // Trigger the file input click
@@ -878,7 +1085,7 @@ inquireServiceModal.addEventListener('show.bs.modal', function (event) {
           reader.onload = function(e) {
               document.getElementById('profile-pic').src = e.target.result; // Show the preview
           };
-          reader.readAsDataURL(file); // Read the file as data URL
+          reader.readAsDataURL(file); 
       }
   });
   
@@ -891,7 +1098,7 @@ inquireServiceModal.addEventListener('show.bs.modal', function (event) {
         e.preventDefault();
         var form = $(this);
         
-        // Create a FormData object
+       
         var formData = new FormData(form[0]);
         
         $.ajax({
@@ -907,7 +1114,7 @@ inquireServiceModal.addEventListener('show.bs.modal', function (event) {
                     text: response.message,
                     showConfirmButton: true,
                 }).then(function() {
-                    location.reload();  // Reload the page after success
+                    location.reload(); 
                 });
             },
             error: function(xhr) {
@@ -973,126 +1180,6 @@ inquireServiceModal.addEventListener('show.bs.modal', function (event) {
 
 
 
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const form = document.getElementById("serviceForm");
-
-      form.addEventListener("submit", function (event) {
-        event.preventDefault(); // Prevent the form from submitting normally
-
-        const formData = new FormData(form);
-
-        fetch(form.action, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-Requested-With": "XMLHttpRequest", // Ensure it's an AJAX request
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.message) {
-              // Show a success message with a timer
-              Swal.fire({
-                title: "Success!",
-                text: data.message,
-                icon: "success",
-                timer: 1000, // Time in milliseconds (2000ms = 2 seconds)
-                timerProgressBar: true,
-                confirmButton: false,
-
-                showConfirmButton: false,
-                didClose: () => {
-                  // Redirect to the provider page after the alert closes
-                  const providerId = form.querySelector(
-                    'input[name="user_id"]'
-                  ).value;
-                  window.location.href = `/service-provider/${providerId}/`;
-                },
-              });
-            } else {
-              // Show an error message with a timer
-              Swal.fire({
-                title: "Error!",
-                text: "Something went wrong!",
-                icon: "error",
-                timer: 2000, // Time in milliseconds (2000ms = 2 seconds)
-                timerProgressBar: true,
-              });
-            }
-          })
-          .catch((error) => {
-            // Show an error message with a timer
-            Swal.fire({
-              title: "Error!",
-              text: "An error occurred while processing your request.",
-              icon: "error",
-              timer: 2000, // Time in milliseconds (2000ms = 2 seconds)
-              timerProgressBar: true,
-            });
-          });
-      });
-    });
-  </script>
-
-  <script>
-    document
-      .getElementById("createPostForm")
-      .addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        const form = event.target;
-        const formData = new FormData(form);
-
-        fetch(form.action, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-Requested-With": "XMLHttpRequest", 
-            "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.message === "Post created successfully!") {
-              Swal.fire({
-                title: "Success!",
-                text: data.message,
-                icon: "success",
-                timer: 1000, 
-                timerProgressBar: true,
-                confirmButton: false,
-
-                showConfirmButton: false,
-                didClose: () => {
-                  // Redirect to the provider page after the alert closes
-                  const providerId = form.querySelector(
-                    'input[name="user_id"]'
-                  ).value;
-                  window.location.href = `/service-provider/${providerId}/`;
-                },
-              });
-            } else {
-              Swal.fire({
-                icon: "error",
-                title: "Error!",
-                text: data.message || "An unexpected error occurred.",
-                confirmButtonText: "OK",
-              });
-            }
-          })
-          .catch((error) => {
-            Swal.fire({
-              icon: "error",
-              title: "Error!",
-              text: "An error occurred while processing your request.",
-              confirmButtonText: "OK",
-            });
-          });
-      });
-  </script>
-
   <script>
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -1101,14 +1188,16 @@ inquireServiceModal.addEventListener('show.bs.modal', function (event) {
         button.addEventListener('click', function () {
   
           const serviceId = this.getAttribute('data-service-id');
+          console.log(serviceId)
           const serviceName = this.getAttribute('data-service-name');
           const servicePrice = this.getAttribute('data-service-price');
           const serviceDescription = this.getAttribute('data-service-description');
           const serviceInclusions = this.getAttribute('data-service-inclusions');
           const providerId = this.getAttribute('data-provider-id');
 
+
      
-          document.getElementById('provider_id').value = providerId;
+          document.getElementById('service_id_modal').value = serviceId;
           document.getElementById('service_name').value = serviceName;
           document.getElementById('price').value = servicePrice;
           document.getElementById('description').textContent = serviceDescription;
@@ -1116,7 +1205,7 @@ inquireServiceModal.addEventListener('show.bs.modal', function (event) {
           
      
           const form = document.getElementById('update_serviceForm');
-          form.action = `/update-service/${serviceId}/`;
+   
         });
         
       });

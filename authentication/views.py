@@ -95,14 +95,16 @@ def register_provider(request):
                 password = generate_password()
 
                 user = User.objects.create_user(username=email, first_name=firstname, last_name=lastname, email=email, password=password)
-
+                user.is_active = False
+                user.save()
                 # Create a provider record
                 provider = ServiceProvider.objects.create(
                     user=user,
                     name=request.POST.get('business_name'),
                     contact_number=request.POST.get('contact_number'),
                     address=request.POST.get('address'),
-                    desc=request.POST.get('business_description')
+                    desc=request.POST.get('business_description'),
+                    proof = request.FILES.get('proof')
                 )
 
                 if request.FILES.get('logo'):

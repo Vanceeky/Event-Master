@@ -153,23 +153,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-DJANGO_QUILL_EDITOR = {
-    'theme': 'snow',  # Can be 'snow' or 'bubble'
-    'modules': {
-        'toolbar': [
-            [{'header': '1'}, {'header': '2'}, { 'font': [] }],
-            [{'list': 'ordered'}, {'list': 'bullet'}],
-            [{'script': 'sub'}, {'script': 'super'}],
-            [{'indent': '-1'}, {'indent': '+1'}],
-            [{'size': ['small', 'medium', 'large', 'huge']}],
-            ['bold', 'italic', 'underline'],
-            ['link', 'image'],
-            [{'color': []}, {'background': []}],
-            [{'align': []}],
-            ['clean']
-        ]
-    }
+
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Event Master",
+    "site_header": "Event Master",
+    "site_logo": "/images/event_master_logo.png",
+    "welcome_sign": "Welcome to Event Master Admin",
+    "site_logo_classes": "img-circle",
+    "favicon": "/images/event_master_logo.jpg",
+
 }
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

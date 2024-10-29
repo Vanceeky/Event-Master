@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from chat.models import ChatGroup, GroupMessage
 from django.db.models import Avg, Count
 from django.db import IntegrityError
+from django.views.decorators.http import require_POST
 
 def index(request):
     service_providers = ServiceProvider.objects.all()[:5]
@@ -89,6 +90,7 @@ def update_service_provider(request):
             bio = request.POST.get('bio')
             logo = request.FILES.get('logo')
 
+
             print(f"Provider ID: {provider_id}, Firstname: {firstname}, Email: {email}")  # Debugging line
             user = User.objects.get(id=provider_id)
             provider = get_object_or_404(ServiceProvider, user = user)
@@ -107,7 +109,8 @@ def update_service_provider(request):
             provider.desc = bio
             provider.address = address
             
-            provider.logo = logo
+            if logo:
+                provider.logo = logo
 
             user.save()
             provider.save()
@@ -163,6 +166,35 @@ def create_service(request):
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)
 
+
+def update_service(request):
+ 
+    service_id = request.POST.get('service_id')
+    
+    service = get_object_or_404(Service, id=service_id)
+    if request.method == 'POST':
+     
+        service.name = request.POST.get('service_name')
+        service.price = request.POST.get('price')
+        service.description = request.POST.get('description')
+        service.inclusions = request.POST.get('inclusions')
+
+        service.save()
+
+    
+        return JsonResponse({'status': 'success', 'message': 'Service updated successfully!'})
+
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+
+def remove_service(request, service_id):
+    service = get_object_or_404(Service, id=service_id)
+    service.delete()
+
+    return JsonResponse({'message': 'Service removed successfully'})
+
+
 def create_post(request):
     if request.method == 'POST':
         provider_id = request.POST.get('provider_id')
@@ -191,6 +223,13 @@ def create_post(request):
     
     # Return an error response if method is not POST
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
+
+def remove_post(request, post_id):
+    post = get_object_or_404(ServicePost, id=post_id)
+    post.delete()
+
+    return JsonResponse({'message': 'Post removed successfully'})
 
 
 def provider_bookings(request):
@@ -672,6 +711,15 @@ def cancel_booking_request(request):
 
 
 
+def event_finished(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    event.status = 'Completed'
+    event.save()
+
+    # Update all 'pending' selected services for this event to 'canceled'
+    event.selected_services.filter(status='pending').update(status='cancelled')
+
+    return redirect('added-service-page')
 
 
 def add_rating(request):
