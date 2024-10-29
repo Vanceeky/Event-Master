@@ -1,7 +1,7 @@
 from django.contrib import admin
 from . models import *
 
-
+from django.urls import reverse
 
 # Register your models here.
 
@@ -9,12 +9,60 @@ from . models import *
 
 admin.site.site_title = 'Event Master Administration'
 admin.site.site_header = 'Event Master'
+from django.contrib.admin import SimpleListFilter
+from django.core.mail import send_mail
+from django.conf import settings
 
+class ActiveStatusFilter(SimpleListFilter):
+    title = 'Account Status'
+    parameter_name = 'is_active'
 
-@admin.register(ServiceProvider)
+    def lookups(self, request, model_admin):
+        return (
+            ('Active', 'Active'),
+            ('Inactive', 'Inactive'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'Active':
+            return queryset.filter(user__is_active=True)
+        if self.value() == 'Inactive':
+            return queryset.filter(user__is_active=False)
+        return queryset
+    
+
 class ServiceProviderAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'desc', 'contact_number', 'address')
-    search_fields = ('name', 'desc', 'user')
+    list_display = ('name', 'user', 'contact_number', 'address', 'is_active')
+    list_filter = (ActiveStatusFilter,)  
+    actions = ['activate_users']
+
+    def is_active(self, obj):
+        return obj.user.is_active
+    is_active.boolean = True  
+
+    def activate_users(self, request, queryset):
+        for service_provider in queryset:
+            service_provider.user.is_active = True
+            service_provider.user.save()
+            
+            # Construct the activation URL
+            login_url = request.build_absolute_uri(reverse('provider-login')) 
+            
+            # Send activation email
+            send_mail(
+                'Your Account is Now Active',
+                'Hello {},\n\nYour account has been successfully activated! You can now log in to your account using the following link:\n\n{}'.format(service_provider.name, login_url),
+                settings.EMAIL_HOST_USER, 
+                [service_provider.user.email],  
+                fail_silently=False,
+            )
+            
+        self.message_user(request, "Selected service providers have been activated and notified via email.")
+    activate_users.short_description = "Activate selected service providers"
+
+# Register the admin class with the associated model
+admin.site.register(ServiceProvider, ServiceProviderAdmin)
+
 
 
 class ServiceImageInline(admin.TabularInline):

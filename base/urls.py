@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -18,7 +19,10 @@ urlpatterns = [
 
     path('service-provider/<int:provider_id>/', views.service_provider, name='service-provider'),
     path('add-service/', views.create_service, name='create_service'),
+    path('update-service/', views.update_service, name='update-service'),
+    path('remove-service/<int:service_id>/', views.remove_service, name='remove-service'),
     path('create-post/', views.create_post, name='create_post'),
+    path('remove-post/<int:post_id>/', views.remove_post, name='remove-post'),
     path('bookings/', views.provider_bookings, name='provider-bookings'),
     path('update-provider/', views.update_service_provider, name='update-provider'),
 
@@ -37,6 +41,7 @@ urlpatterns = [
     path('create-new-event/', views.create_new_event, name='create-new-event'),
     path('update-event/', views.update_event, name='update-event'),
     path('remove-event/', views.remove_event, name='remove-event'),
+    path('finish-event/<int:event_id>/', views.event_finished, name='event-finished'),
     path('customer/added-service/', views.added_service_page, name='added-service-page'),
     path('update-customer-information/', views.update_customer_profile, name="update-customer-information"),
 
@@ -62,6 +67,13 @@ urlpatterns = [
 
 
     path('add-ratings/', views.add_rating, name='add-rating'),
+
+
+            # Password reset URLs
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
 
 

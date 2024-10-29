@@ -98,6 +98,8 @@
                                                             <span class="badge badge-pill bg-gradient-success">{{ service.status }}</span>
                                                         {% elif service.status == 'rejected' %}
                                                             <span class="badge badge-pill bg-gradient-danger">{{ service.status }}</span>
+                                                        {% elif service.status == 'cancelled' %}
+                                                            <span class="badge badge-pill bg-gradient-danger">{{ service.status }}</span>
                                                         {% endif %}
                                                     </td>
                                                 </tr>

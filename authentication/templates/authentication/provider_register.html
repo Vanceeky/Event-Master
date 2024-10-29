@@ -140,7 +140,7 @@
 
                                             <div class="form-group">
                                                 <label for="exampleFormControlInput1">Upload Verification Documents: </label>
-                                                <input type="file" class="form-control" multiple id="exampleFormControlInput1">
+                                                <input type="file" name="proof" class="form-control" id="exampleFormControlInput1">
                                                 <small class="text-muted text-sm">Please upload copies of your relevant business licenses, or a valid ID</small>
                                                 <small class="text-muted text-sm">Ensure all documents are clear and legible for verification purposes.</small>
                                             </div>
@@ -279,6 +279,8 @@
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
+                contentType: false,
+                processData: false, 
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest' // Indicate this is an AJAX request
                 }

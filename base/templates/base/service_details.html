@@ -135,7 +135,8 @@
 
                         {% endif %}
 
-                            
+                        {% for group in request.user.groups.all %}
+                        {% if group.name == 'customer' %}
                         <div class="row mt-4 align-items-center d-flex justify-content-center">
                             <div class="col-lg-4 col-12">
                                 <button class="add-service-btn btn btn-outline-info w-100" type="button" data-bs-toggle="modal" data-bs-target="#add-service-event" data-service-id="{{service.id}}">Add to event</button>
@@ -144,6 +145,8 @@
                                 <button class="btn bg-gradient-info w-100" data-bs-toggle="modal" data-bs-target="#modal-message" type="button">Inquire</button>
                             </div>
                         </div>
+                        {% endif %}
+                        {% endfor %}
 
                     </div>
     
@@ -276,7 +279,7 @@
     </div>
 
 
-    {% if reviews %}
+
     <div class="container">
         <div class="row mt-3">
             <div class="col-4 md-0 mt-4">
@@ -366,7 +369,11 @@
                         
                        </ul>
 
-                       <button class=" mt-4 btn btn-outline-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#add-review-modal">Write a review</button>
+                       {% for group in request.user.groups.all %}
+                       {% if group.name == 'customer' %}
+                            <button class=" mt-4 btn btn-outline-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#add-review-modal">Write a review</button>
+                       {% endif %}
+                       {% endfor %}
                     </div>
                 </div>
             </div>
@@ -437,9 +444,7 @@
             
         </div>
     </div>
-    {% else %}
-    <p> NO REVIEWS </p>
-    {% endif %}
+
    
 </section>
 

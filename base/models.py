@@ -12,6 +12,7 @@ class ServiceProvider(models.Model):
     desc = models.TextField(max_length=500, null = True, blank = True)
     contact_number = models.CharField(max_length=11, null = True, blank = True)
     address = models.CharField(max_length=255, null = True, blank = True)
+    proof = models.FileField(upload_to='service_providers', null = True, blank = True)
 
 
     
@@ -155,7 +156,7 @@ class SelectedService(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='selected_services')
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
 
-    status = models.CharField(max_length=10, choices=[('draft', 'Draft'), ('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], default='draft')
+    status = models.CharField(max_length=10, choices=[('draft', 'Draft'), ('cancelled', 'Cancelled'), ('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], default='draft')
 
     def __str__(self):
         return f'{self.service.name} for {self.event.title}'

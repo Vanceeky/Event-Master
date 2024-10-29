@@ -39,35 +39,49 @@
                                 </h5>
                                 <span class="text-sm ms-auto mt-0">{{ event.event_date }}</span>
                             </div>
-                            <div class="col-3 text-end">
-                                <div class="dropstart">
-                                    <a href="javascript:;" class="text-secondary" id="dropdownMarketingCard" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-lg-start px-2 py-3" aria-labelledby="dropdownMarketingCard">
-                                        <li>
-                                            <a class="dropdown-item border-radius-md" 
-                                               href="javascript:;" 
-                                               data-bs-toggle="modal" 
-                                               data-event-id="{{ event.id }}"
-                                               data-event-title="{{ event.title }}"
-                                               data-event-date="{{ event.event_date|date:'Y-m-d' }}"
-                                               data-event-location="{{ event.location }}"
-                                               data-event-budget="{{ event.budget }}"
-                                               data-event-description="{{ event.description }}"
-                                               data-bs-target="#update-event">Update Event</a>
-                                        </li>
-                                        
-                                        <li>
-                                            <a class="dropdown-item border-radius-md text-danger remove_event" 
-                                               href="javascript:;" 
-                                               data-event-id="{{ event.id }}">Remove Event</a>
-                                        </li>
-                                   
+                          </a>
+                              {% if event.status == 'Completed' %}
 
-                                    </ul>
+                              {% else %}
+                                <div class="col-3 text-end">
+                                    <div class="dropstart">
+                                        <a href="javascript:;" class="text-secondary" id="dropdownMarketingCard" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+
+                                        <ul class="dropdown-menu dropdown-menu-lg-start px-2 py-3" aria-labelledby="dropdownMarketingCard">
+                                            <li>
+                                                <a class="dropdown-item border-radius-md" 
+                                                  href="javascript:;" 
+                                                  data-bs-toggle="modal" 
+                                                  data-event-id="{{ event.id }}"
+                                                  data-event-title="{{ event.title }}"
+                                                  data-event-date="{{ event.event_date|date:'Y-m-d' }}"
+                                                  data-event-location="{{ event.location }}"
+                                                  data-event-budget="{{ event.budget }}"
+                                                  data-event-description="{{ event.description }}"
+                                                  data-bs-target="#update-event">Update Event</a>
+                                            </li>
+
+                                            <li>
+                                              <a class="dropdown-item border-radius-md text-danger" 
+                                                href="{% url 'event-finished' event.id %}" 
+                                                data-event-id="{{ event.id }}">Event Finished</a>
+                                            </li>
+                                            
+                                            <li>
+                                                <a class="dropdown-item border-radius-md text-danger remove_event" 
+                                                  href="javascript:;" 
+                                                  data-event-id="{{ event.id }}">Remove Event</a>
+                                            </li>
+                                      
+
+                                            
+
+                                        </ul>
+                                      
+                                    </div>
                                 </div>
-                            </div>
+                              {% endif %}
                             </div>
                             <ul class="list-unstyled mx-auto">
 
@@ -170,6 +184,8 @@
                                                             <td class="align-middle text-center text-md">
                                                               {% if selected_service.status == 'pending' %}
                                                                   <span class="badge badge-pill bg-gradient-warning">{{ selected_service.status }}</span>
+                                                              {% elif selected_service.status == 'cancelled' %}
+                                                                  <span class="badge badge-pill bg-gradient-warning">{{ selected_service.status }}</span>
                                                               {% elif selected_service.status == 'accepted' %}
                                                                   <span class="badge badge-pill bg-gradient-success">{{ selected_service.status }}</span>
                                                               {% elif selected_service.status == 'rejected' %}
@@ -179,8 +195,11 @@
                                                               {% endif %}
                                                             </td>
                                                             <td class="align-middle">
+                                                              {% if selected_service.status == 'accepted' %}
+                                                              {% else %}
                                                             <a href="{% url 'remove_service_from_event' selected_service.id %}" class="text-danger remove_service" aria-expanded="false" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Service">
                                                             <i class="fa fa-trash" aria-hidden="true"></i>
+                                                            {% endif %}
                                                             </a>
                                                             </td>
                                                         </tr>
@@ -192,9 +211,16 @@
                                             <hr class="dark horizontal">
                                             <div class="text-end me-3">
                                                   
-                                           
+                                            {% if event.status == 'Completed' %}
+
+
+                                            <button type="button" class="btn bg-gradient-info">Event Finished</button>
+                                            {% else %}
+
 
                                             <button type="submit" class="btn btn-outline-info submit_request">Submit Booking Request</button>
+                                            {% endif %}
+                                                
                                             </div>
                                     </form>
                                 </div>
