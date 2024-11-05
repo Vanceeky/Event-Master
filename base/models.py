@@ -45,6 +45,7 @@ class Service(models.Model):
 
     category = models.CharField(max_length=255, choices=category_choices, blank=True, null=True, default="Other")
 
+
     def __str__(self):
         return self.name
     
@@ -91,7 +92,7 @@ class ServicePost(models.Model):
     created_by = models.ForeignKey(ServiceProvider, on_delete=models.CASCADE, related_name='service_provider', null = True, blank = True)
 
     title = models.CharField(max_length=255)
-    description = RichTextField()
+    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

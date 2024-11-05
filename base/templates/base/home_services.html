@@ -120,13 +120,24 @@
                                           <a href="{% url 'service-provider' service.provider.user.id %}">
                                               <h6 class="mb-0 text-sm">{{ service.provider.name }}</h6>
                                           </a>
+
+
                                           <p class="text-xs">
-                                              <i class="fa fa-star fa-2xs"></i>
-                                              <i class="fa fa-star fa-2xs"></i>
-                                              <i class="fa fa-star fa-2xs"></i>
-                                              <i class="fa fa-star fa-2xs"></i>
-                                              <i class="fa fa-star fa-2xs"></i>
+                                            {% for i in "12345" %}
+                                            {% if service.avg_rating >= i|add:0 %}
+                                                <i class="fas fa-star" aria-hidden="true"></i>
+                                            {% elif service.avg_rating >= i|add:-0.5 %}
+                                                <i class="fas fa-star-half-alt" aria-hidden="true"></i>
+                                            {% else %}
+                                                <i class="far fa-star" aria-hidden="true"></i> <!-- Use 'far' class for empty stars -->
+                                            {% endif %}
+                                        {% endfor %}
                                           </p>
+
+
+
+
+
                                       </div>
                                   </div>
                                   <div class="col-4">

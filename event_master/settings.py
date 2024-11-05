@@ -167,9 +167,11 @@ JAZZMIN_SETTINGS = {
 }
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = '6d6a5edefc2f28'
-EMAIL_HOST_PASSWORD = '9a75c3728d6594'
-EMAIL_PORT = 2525  # No quotes for integer
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'eventmaster7124@gmail.com'
+EMAIL_HOST_PASSWORD = 'mgkm aweg rrxd gsuq'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

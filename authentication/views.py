@@ -115,6 +115,7 @@ def register_provider(request):
                 provider_group, created = Group.objects.get_or_create(name='provider')
                 user.groups.add(provider_group)
 
+                '''
                 service = Service.objects.create(
                     provider=provider,
                     name=request.POST.get('service_name'),
@@ -128,6 +129,7 @@ def register_provider(request):
                     for img in request.FILES.getlist('service_images'):
                         service_image = ServiceImage(service=service, image=img)
                         service_image.save()
+                '''
 
                 # Send email with the generated password
                 email_subject = 'Welcome to Our Service! Your Account Has Been Created'
