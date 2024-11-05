@@ -11,6 +11,11 @@ from chat.models import ChatGroup, GroupMessage
 from django.db.models import Avg, Count
 from django.db import IntegrityError
 from django.views.decorators.http import require_POST
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth import authenticate, update_session_auth_hash
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 def index(request):
     service_providers = ServiceProvider.objects.all()[:5]
@@ -76,7 +81,77 @@ def service_provider(request, provider_id):
 
     return render(request, 'base/provider/home.html', context)
 
+
 def update_service_provider(request):
+    if request.method == 'POST':
+        try:
+            print("Request received")  # Debugging line
+
+            provider_id = request.POST.get('provider_id')
+            firstname = request.POST.get('firstname')
+            lastname = request.POST.get('lastname')
+            email = request.POST.get('email')
+            contact_number = request.POST.get('contact_number')
+            address = request.POST.get('address')
+            bio = request.POST.get('bio')
+            logo = request.FILES.get('logo')
+
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            print(f"Provider ID: {provider_id}, Firstname: {firstname}, Email: {email}")  # Debugging line
+            user = User.objects.get(id=provider_id)
+            provider = get_object_or_404(ServiceProvider, user=user)
+
+            # Check and handle email update
+            current_email = user.email
+            if current_email != email:
+                if User.objects.filter(email=email).exclude(id=user.id).exists():
+                    return JsonResponse({'message': 'The email is already associated with another account. Please use a different email.'}, status=400)
+                user.email = email
+                user.username = email  # Update username to the new email
+
+            # Update user and provider details
+            user.first_name = firstname
+            user.last_name = lastname
+            provider.contact_number = contact_number
+            provider.desc = bio
+            provider.address = address
+            
+            if logo:
+                provider.logo = logo
+
+            # Password change logic
+            if current_password and new_password and confirm_password:
+                if not user.check_password(current_password):
+                    return JsonResponse({'message': 'The current password is incorrect.'}, status=400)
+                if new_password != confirm_password:
+                    return JsonResponse({'message': 'The new password and confirmation do not match.'}, status=400)
+                if len(new_password) < 8:  
+                    return JsonResponse({'message': 'The new password must be at least 8 characters long.'}, status=400)
+                
+                user.set_password(new_password)  
+                update_session_auth_hash(request, user)  
+
+          
+            user.save()
+            provider.save()
+
+            return JsonResponse({'message': 'Service provider updated successfully'})
+
+        except IntegrityError as e:
+            print(f"IntegrityError: {e}")  # Debugging line
+            return JsonResponse({'message': 'Database integrity error. Please try again.'}, status=400)
+        except ObjectDoesNotExist:
+            return JsonResponse({'message': 'Provider or User not found.'}, status=404)
+        except Exception as e:
+            print(f"Error updating provider: {e}")  # Debugging line
+            return JsonResponse({'message': 'Failed to update service provider. Please try again.'}, status=500)
+
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
+def update_service_provider2(request):
     if request.method == 'POST':
         try:
             print("Request received")  # Debugging line
@@ -134,6 +209,8 @@ def create_service(request):
         service_name = request.POST.get('service_name')
         price = request.POST.get('price')
         description = request.POST.get('description')
+        category = request.POST.get('category')
+
         inclusions = request.POST.get('inclusions')
         images = request.FILES.getlist('images')  # Retrieve multiple uploaded images
 
@@ -148,6 +225,7 @@ def create_service(request):
             service = Service.objects.create(
                 provider=provider,
                 name=service_name,
+                category=category,
                 price=price,
                 description=description,
                 inclusions=inclusions
@@ -178,7 +256,7 @@ def update_service(request):
         service.price = request.POST.get('price')
         service.description = request.POST.get('description')
         service.inclusions = request.POST.get('inclusions')
-
+ 
         service.save()
 
     
@@ -268,6 +346,7 @@ def home_services(request):
         inclusions_list = service.inclusions.split(',') if service.inclusions else []
 
         service.inclusions_list = [inclusion.strip() for inclusion in inclusions_list]
+        service.avg_rating = service.average_rating()
         
     context = {
         'services': services
@@ -377,7 +456,9 @@ def customer_account(request):
 
     return render(request, 'base/customer/account.html', context)
 
-def update_customer_profile(request):
+
+
+def update_customer_profile2(request):
     if request.method == "POST":
         try:
             customer_id = request.POST.get('customer_id')
@@ -429,9 +510,80 @@ def update_customer_profile(request):
     return JsonResponse({'message': 'Invalid request'}, status=400)
 
 
+@login_required
+def update_customer_profile(request):
+    if request.method == "POST":
+        try:
+            customer_id = request.POST.get('customer_id')
 
+            # Ensure the customer_id matches the authenticated user
+            if str(request.user.id) != customer_id:
+                return JsonResponse({'message': 'Unauthorized'}, status=401)
 
+            first_name = request.POST.get('firstname')
+            last_name = request.POST.get('lastname')
+            email = request.POST.get('email')
+            contact_number = request.POST.get('contact_number')
+            address = request.POST.get('address')
+            avatar = request.FILES.get('avatar')
 
+            # Password fields
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            # Get the user and customer objects
+            user = request.user
+            customer = get_object_or_404(Customer, user=user)
+
+            # Update user information (name, email, contact, etc.)
+            customer.user.first_name = first_name
+            customer.user.last_name = last_name
+            customer.phone_number = contact_number
+            customer.address = address
+
+            current_email = customer.user.email
+            if email != current_email:
+                if User.objects.filter(email=email).exclude(id=user.id).exists():
+                    return JsonResponse({'message': 'The email is already associated with another account. Please use a different email.'}, status=400)
+
+                customer.user.email = email
+                customer.user.username = email
+
+            # Check and save the avatar
+            if avatar:
+                customer.avatar = avatar  # Update the avatar
+
+            # Handle Password Change
+            if current_password and new_password and confirm_password:
+                if not user.check_password(current_password):
+                    return JsonResponse({'message': 'The current password is incorrect.'}, status=400)
+                if new_password != confirm_password:
+                    return JsonResponse({'message': 'The new password and confirmation do not match.'}, status=400)
+                if len(new_password) < 8:  # Example password validation rule
+                    return JsonResponse({'message': 'The new password must be at least 8 characters long.'}, status=400)
+
+            
+                user.set_password(new_password) 
+                user.save()
+         
+                update_session_auth_hash(request, user)  
+
+                return JsonResponse({'message': 'Password changed successfully'})
+
+            # Save the user and customer (excluding password change logic)
+            customer.user.save()
+            customer.save()
+
+            return JsonResponse({'message': 'User information updated successfully'})
+
+        except IntegrityError as e:
+            return JsonResponse({'message': 'Database integrity error. Please try again.'}, status=400)
+        except Exception as e:
+            print(f"Error updating customer profile: {e}")  # Debugging line
+            return JsonResponse({'message': 'Failed to update information. Please try again.'}, status=500)
+
+    return JsonResponse({'message': 'Invalid request'}, status=400)
 
 
 def fetch_events(request):

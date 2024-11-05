@@ -697,79 +697,118 @@
           {% csrf_token %}
           <div class="modal-body">
 
-            <input type="hidden" value="{{ provider.user.id }}" name="provider_id">
+            <div id="info">
+              <input type="hidden" value="{{ provider.user.id }}" name="provider_id">
 
-            <div class="fileinput fileinput-new text-center" data-provides="fileinput">
-              <div id="profile-pic-container" class="mb-3">
-                  <img id="profile-pic" src="{{ provider.logo.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+              <div class="fileinput fileinput-new text-center" data-provides="fileinput">
+                <div id="profile-pic-container" class="mb-3">
+                    <img id="profile-pic" src="{{ provider.logo.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                </div>
+                <div class="mb-3">
+                    <input type="file" id="file-input" name="logo" class="d-none" accept="image/*">
+                    <button id="change-profile-btn" type="button" class="btn btn-sm btn-secondary">Change Logo</button>
+                </div>
               </div>
-              <div class="mb-3">
-                  <input type="file" id="file-input" name="logo" class="d-none" accept="image/*">
-                  <button id="change-profile-btn" type="button" class="btn btn-sm btn-secondary">Change Logo</button>
+
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="service_name">FirstName:</label>
+                    <input type="text" class="form-control" name="firstname" value="{{ provider.user.first_name }}" required />
+                  </div>
+
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="service_name">LastName:</label>
+                    <input type="text" class="form-control" name="lastname" value="{{ provider.user.last_name }}" required />
+                  </div>
+
+                </div>
+
+
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="service_name">Contact Number:</label>
+                    <input type="text" class="form-control" name="contact_number"  value="{{ provider.contact_number }}" required placeholder="Service..." />
+                  </div>
+                </div>
+    
+                <div class="col-md-8">
+                  <div class="form-group">
+                    <label for="service_name">Email:</label>
+                    <input type="text" class="form-control" name="email" value="{{ provider.user.email }}" required placeholder="Service..." />
+                  </div>
+                </div>
+
+
+
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="service_name">Address:</label>
+                    <input type="text" class="form-control" name="address" value="{{ provider.address }}" required placeholder="Service..." />
+                  </div>
+                </div>
+
+                <div class="col">
+                  <div class="form-group">
+                    <label for="exampleFormControlTextarea1">Bio:</label>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" name="bio" rows="1">{{ provider.desc}}</textarea>
+                  </div>
+
+                </div>
+
+
+
+
+
               </div>
+
             </div>
 
-            
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="service_name">FirstName:</label>
-                  <input type="text" class="form-control" name="firstname" value="{{ provider.user.first_name }}" required />
-                </div>
+            <div id="pw">
+
+                  <div class="form-group">
+                    <label for="">Current Password:</label>
+                    <input type="password" class="form-control" name="current_password" value="" reuired />
+                  </div>
+
+
+      
+                  <div class="form-group">
+                    <label for="">New Password:</label>
+                    <input type="password" class="form-control" name="new_password" value="" required />
+                  </div>
+
+           
+
+
+
+                  <div class="form-group">
+                    <label for="">Confirm Password:</label>
+                    <input type="password" class="form-control" name="confirm_password"  value="" required />
+                  </div>
+         
+
+
+
+
+
+
 
               </div>
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="service_name">LastName:</label>
-                  <input type="text" class="form-control" name="lastname" value="{{ provider.user.last_name }}" required />
-                </div>
-
-              </div>
-
-
-
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label for="service_name">Contact Number:</label>
-                  <input type="text" class="form-control" name="contact_number"  value="{{ provider.contact_number }}" required placeholder="Service..." />
-                </div>
-              </div>
-  
-              <div class="col-md-8">
-                <div class="form-group">
-                  <label for="service_name">Email:</label>
-                  <input type="text" class="form-control" name="email" value="{{ provider.user.email }}" required placeholder="Service..." />
-                </div>
-              </div>
-
-
-
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label for="service_name">Address:</label>
-                  <input type="text" class="form-control" name="address" value="{{ provider.address }}" required placeholder="Service..." />
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="form-group">
-                  <label for="exampleFormControlTextarea1">Bio:</label>
-                  <textarea class="form-control" id="exampleFormControlTextarea1" name="bio" rows="1">{{ provider.desc}}</textarea>
-                </div>
-
-              </div>
-
-
-
-
-
             </div>
 
           <div class="modal-footer">
-            <button type="submit" class="btn bg-gradient-info">Save changes</button>
+            <button id="change-password-btn" type="button" class="btn btn-sm btn-secondary">Change Password</button>
+            <button id="save-changes-btn" type="submit" class="btn bg-gradient-info">Save changes</button>
+            
           </div>
         </form>
+
       </div>
     </div>
 </div>
@@ -786,6 +825,42 @@
 
   <!--   Core JS Files   -->
   {% include 'includes/scripts.html' %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get references to the divs and button
+      const infoDiv = document.getElementById('info');
+      const pwDiv = document.getElementById('pw');
+      const changePasswordButton = document.getElementById('change-password-btn');
+      const saveChangesButton = document.getElementById('save-changes-btn');
+  
+      // Initially hide the pw div and show the info div
+      pwDiv.style.display = 'none';
+      
+      // Function to toggle between info and pw divs
+      function togglePasswordForm() {
+        // Toggle visibility of info and pw divs
+        if (pwDiv.style.display === 'none') {
+          infoDiv.style.display = 'none';
+          pwDiv.style.display = 'block';
+          changePasswordButton.textContent = 'Update Info'; // Change button text
+        } else {
+          infoDiv.style.display = 'block';
+          pwDiv.style.display = 'none';
+          changePasswordButton.textContent = 'Change Password'; // Revert button text
+        }
+      }
+  
+      // Event listener for the "Change Password / Update Info" button
+      changePasswordButton.addEventListener('click', togglePasswordForm);
+  
+      // "Save Changes" button remains as is, it doesn't affect visibility of the divs
+      saveChangesButton.addEventListener('click', function() {
+        // You can add custom functionality for the "Save Changes" button if needed
+      });
+    });
+  </script>
+  
+
 
 
   <script>
